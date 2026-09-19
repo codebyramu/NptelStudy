@@ -143,7 +143,7 @@ function buildSidebarNav() {
     btn.dataset.v = v;
     btn.innerHTML = `
       <span class="sb-dot"></span>
-      <span class="sb-item-label" title="Video ${v}: ${VIDEO_TOPICS[v]||''}">Video ${String(v).padStart(2,'0')}: ${VIDEO_TOPICS[v]||''}</span>
+      <span class="sb-item-label" title="${v}: ${VIDEO_TOPICS[v]||''}">${v}: ${VIDEO_TOPICS[v]||''}</span>
       <span class="sb-item-count">${pct !== null ? pct+'%' : count}</span>
     `;
     btn.onclick = () => startVideoSession(v);
