@@ -441,7 +441,7 @@ App.showStats = function() {
     const fillCls = pct===null?'fill-bad':pct>=70?'fill-good':pct>=40?'fill-mid':'fill-bad';
     const pctColor = pct===null?'var(--text-muted)':pct>=70?'var(--green-mid)':pct>=40?'var(--yellow)':'var(--red)';
     ll.innerHTML += `<div class="stats-row">
-      <span class="stats-lec">Video ${v}</span>
+      <span class="stats-lec">Lecture ${v}</span>
       <span class="stats-topic">${VIDEO_TOPICS[v]||''}</span>
       <div class="stats-bar-wrap"><div class="stats-bar-fill ${fillCls}" style="width:${pct||0}%"></div></div>
       <span class="stats-pct" style="color:${pctColor}">${pct!==null?pct+'%':'—'}</span>
@@ -531,3 +531,23 @@ App.nextVideoTest = function() {
     startVideoSession(session.video + 1);
   }
 };
+
+// ─── Keyboard Shortcuts ────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('panel-quiz').classList.contains('active')) return;
+  // Ignore if user is typing in some input (though there are none currently)
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.key === 'ArrowRight') {
+    App.nextQ();
+  } else if (e.key === 'ArrowLeft') {
+    App.prevQ();
+  } else if (['a','b','c','d','1','2','3','4'].includes(e.key.toLowerCase())) {
+    const char = e.key.toLowerCase();
+    const idx = (char === 'a' || char === '1') ? 0 :
+                (char === 'b' || char === '2') ? 1 :
+                (char === 'c' || char === '3') ? 2 : 3;
+    const opts = document.querySelectorAll('#options-list .option-btn');
+    if (opts[idx]) opts[idx].click();
+  }
+});

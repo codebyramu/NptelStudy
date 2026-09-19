@@ -1083,3 +1083,7 @@ body.light-mode { --main-bg: #f7f4ec; --cream: #faf8f2; }
   /* The existing rule */
   /* Remove display: none */
 }
+
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+}
