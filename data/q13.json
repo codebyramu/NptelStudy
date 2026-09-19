@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v13-001",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Process Control Block (PCB)",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In xv6, what C structure represents the Process Control Block (PCB)?",
+    "options": [
+      "struct inode",
+      "struct proc",
+      "struct file",
+      "struct spinlock"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In xv6, the PCB is the 'struct proc' structure. It stores all process metadata: sz (size), pgdir (page directory), kstack (kernel stack), state, pid, parent, tf (trap frame), context, chan, killed, ofile, cwd, and name.",
+    "optionExplanations": [
+      "struct inode represents a file system inode, not a process control block.",
+      "Correct. struct proc is xv6's PCB, holding all metadata for one process.",
+      "struct file represents an open file descriptor, not a process.",
+      "struct spinlock is a locking primitive, not a PCB."
+    ]
+  },
+  {
+    "id": "v13-002",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Process state transition",
+    "difficulty": "medium",
+    "type": "sequence",
+    "question": "What is the correct order of process state transitions in xv6 from creation to completion?",
+    "options": [
+      "UNUSED \u2192 RUNNABLE \u2192 RUNNING \u2192 BLOCKED \u2192 EXIT",
+      "UNUSED \u2192 EMBRYO \u2192 RUNNABLE \u2192 RUNNING \u2192 SLEEPING \u2192 ZOMBIE \u2192 UNUSED",
+      "RUNNING \u2192 EMBRYO \u2192 RUNNABLE \u2192 SLEEPING \u2192 ZOMBIE",
+      "EMBRYO \u2192 RUNNING \u2192 ZOMBIE \u2192 UNUSED \u2192 RUNNABLE"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 process life cycle: (1) UNUSED (free slot in ptable), (2) EMBRYO (being created by fork), (3) RUNNABLE (ready to run), (4) RUNNING (on CPU), (5) SLEEPING (blocked on event), (6) ZOMBIE (exited, waiting for parent's wait()), (7) back to UNUSED.",
+    "optionExplanations": [
+      "UNUSED \u2192 RUNNABLE skips the EMBRYO state; the sequence is incomplete.",
+      "Correct. UNUSED \u2192 EMBRYO \u2192 RUNNABLE \u2192 RUNNING \u2194 SLEEPING \u2192 ZOMBIE \u2192 UNUSED.",
+      "A process cannot go from RUNNING directly to EMBRYO; the sequence is incorrect.",
+      "EMBRYO \u2192 RUNNING skips RUNNABLE; the sequence is incorrect."
+    ]
+  },
+  {
+    "id": "v13-003",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Process ID (PID)",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the Process ID (PID) in xv6, and what is its purpose?",
+    "options": [
+      "The physical memory address where the process's code is stored",
+      "A unique integer identifier assigned to each process at creation, used to reference and manage the process",
+      "The process's priority level in the scheduler",
+      "The segment selector for the process's code segment"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A PID is a unique integer assigned when a process is created (via allocproc() in xv6). It uniquely identifies the process in the system, returned by fork() to the parent, and used in system calls like wait() and kill().",
+    "optionExplanations": [
+      "Physical memory addresses are in the page directory; PID is a logical identifier.",
+      "Correct. PID is a unique integer identifier for each process, used to reference it in system calls.",
+      "Process priority is a scheduling parameter; PID is an identity number.",
+      "Segment selectors are for memory segmentation; PID is a process identity number."
+    ]
+  },
+  {
+    "id": "v13-004",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "P table",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "How does xv6 store all process information in memory?",
+    "options": [
+      "In a linked list of dynamically allocated struct proc objects",
+      "In a fixed-size global array (ptable) of struct proc with NPROC entries",
+      "In a B-tree indexed by PID",
+      "In a hash table keyed by process name"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 uses a global fixed-size array 'struct ptable.proc[NPROC]' (where NPROC is typically 64). Each entry is a struct proc. All processes must fit within this fixed array. The table is protected by a spinlock (ptable.lock).",
+    "optionExplanations": [
+      "Linux uses dynamically allocated task structs in a linked list; xv6 uses a simpler fixed array.",
+      "Correct. xv6's ptable is a global array of NPROC struct proc entries, protected by a spinlock.",
+      "B-tree indexing is used in databases; xv6 uses a simple array for its process table.",
+      "xv6 does not use a hash table; it uses a linear fixed array."
+    ]
+  },
+  {
+    "id": "v13-005",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Context switch",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, what happens during a context switch from one process to another?",
+    "options": [
+      "The CPU restarts from the beginning of the new process's main() function",
+      "The kernel saves the current process's register context (CPU state) and loads the register context of the next process to run",
+      "The OS copies the current process's entire address space to a new location",
+      "The kernel terminates the current process and creates a new one"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A context switch in xv6 saves the current process's kernel context (callee-saved registers: esp, ebp, ebx, esi, edi, eip) to its struct context, then restores the next process's saved struct context, effectively switching CPU execution to the next process.",
+    "optionExplanations": [
+      "Restarting from main() would mean re-running the entire program, not resuming from where it paused.",
+      "Correct. Context switch = save current CPU register state, load next process's saved register state.",
+      "Address spaces are not copied on context switch; each process has its own page directory.",
+      "Termination and recreation would make multitasking impossible; context switching preserves process state."
+    ]
+  },
+  {
+    "id": "v13-006",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Timer interrupt",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What role does the timer interrupt play in xv6's process scheduling?",
+    "options": [
+      "It only handles keyboard input timing",
+      "It periodically fires (every few milliseconds), causing the current process to yield the CPU to the scheduler, enabling preemptive multitasking",
+      "It sets the system clock for date/time functions",
+      "It triggers disk read operations for virtual memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The hardware timer (PIT, configured to fire every ~10ms) generates a timer interrupt. The interrupt handler calls yield(), which transitions the running process to RUNNABLE and calls the scheduler to pick the next process \u2014 enabling preemptive time-sharing.",
+    "optionExplanations": [
+      "Keyboard input uses IRQ 1; timer uses IRQ 0.",
+      "Correct. Timer interrupts trigger the scheduler, implementing preemptive multitasking by forcing process switches.",
+      "System clock updates are one function of timer interrupts; process scheduling via preemption is the OS-critical function.",
+      "Disk reads are triggered by page faults or explicit I/O requests, not timer interrupts."
+    ]
+  },
+  {
+    "id": "v13-007",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Trap frame",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What is a trap frame in xv6, and when is it created?",
+    "options": [
+      "A data structure for managing file I/O buffers",
+      "A kernel stack structure created when transitioning from user to kernel mode that saves all user-mode CPU registers (EIP, CS, EFLAGS, ESP, SS, DS, ES, general purpose registers)",
+      "A hardware register cache in the CPU",
+      "A network packet buffer structure"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The trap frame (struct trapframe in xv6) is pushed onto the process's kernel stack when an interrupt or system call switches from user mode to kernel mode. It saves: error code, EIP, CS, EFLAGS (by CPU hardware), plus DS, ES, general-purpose registers (by alltraps assembly routine).",
+    "optionExplanations": [
+      "File I/O buffers are managed by the buffer cache; trap frame is a CPU state capture structure.",
+      "Correct. Trap frame = snapshot of user-mode CPU state saved on kernel stack at interrupt/syscall entry.",
+      "Hardware register caches are CPU microarchitecture elements; trap frame is an OS software structure.",
+      "Network packet buffers are mbuf structures; trap frame is for CPU state preservation."
+    ]
+  },
+  {
+    "id": "v13-008",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Preemption",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "How does xv6 implement preemption \u2014 forcibly removing the CPU from a running process?",
+    "options": [
+      "The process voluntarily calls yield() when it has run long enough",
+      "A timer interrupt fires, the interrupt handler detects the process has used its time slice, and calls yield() to invoke the scheduler",
+      "The user process calls exit() to release the CPU",
+      "The parent process sends a signal to preempt the child"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 uses preemptive scheduling: the hardware timer fires periodically, the timer interrupt handler calls yield() on behalf of the current process, which sets its state to RUNNABLE and calls sched() to switch to the scheduler context.",
+    "optionExplanations": [
+      "Voluntary yield is cooperative scheduling; xv6 uses preemptive scheduling via timer interrupts.",
+      "Correct. Timer interrupt \u2192 yield() \u2192 sched() \u2192 scheduler picks next RUNNABLE process.",
+      "exit() terminates a process; it does not preempt it to run another.",
+      "Preemption in xv6 is done via hardware timer and kernel scheduler, not parent signals."
+    ]
+  },
+  {
+    "id": "v13-009",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "CPU Scheduler",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What scheduling algorithm does the xv6 scheduler implement?",
+    "options": [
+      "Priority-based scheduling with aging",
+      "Multilevel feedback queue",
+      "Simple Round-Robin \u2014 iterates through the ptable and runs the first RUNNABLE process found",
+      "Shortest Remaining Time First (SRTF)"
+    ],
+    "correctAnswer": 2,
+    "explanation": "xv6's scheduler is a simple Round-Robin: it loops through the ptable array sequentially, switches to the first RUNNABLE process found, runs it until it yields/blocks/exits, then loops again. No priorities, no aging, no complex heuristics.",
+    "optionExplanations": [
+      "xv6 does not implement priority-based scheduling.",
+      "Multilevel feedback queues are used in real OS like macOS and Linux; xv6 uses simple round-robin.",
+      "Correct. xv6 scheduler = simple sequential scan of ptable for the first RUNNABLE process (Round-Robin).",
+      "SRTF requires knowing remaining burst time, which xv6 does not estimate."
+    ]
+  },
+  {
+    "id": "v13-010",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Process state transition",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "When a process calls sleep() in xv6 (e.g., waiting for I/O), what state does it transition to?",
+    "options": [
+      "ZOMBIE",
+      "RUNNING",
+      "SLEEPING",
+      "UNUSED"
+    ],
+    "correctAnswer": 2,
+    "explanation": "When a process calls sleep(chan, lk) in xv6, it sets its state to SLEEPING (blocked on the event channel 'chan') and calls sched() to switch to another process. It remains SLEEPING until wakeup(chan) is called by a kernel event (e.g., I/O completion).",
+    "optionExplanations": [
+      "ZOMBIE state is for processes that have exited but whose parent hasn't called wait() yet.",
+      "A process cannot remain in RUNNING state while blocked; it must yield the CPU.",
+      "Correct. sleep() sets process state to SLEEPING; it is unscheduled until wakeup(chan) is called.",
+      "UNUSED means the ptable entry is free; an existing process cannot enter UNUSED directly."
+    ]
+  },
+  {
+    "id": "v13-011",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Process Control Block (PCB)",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "In xv6's struct proc, the 'context' field stores scheduler context registers. Which registers are saved in the scheduler context?",
+    "options": [
+      "EAX, EBX, ECX, EDX (general-purpose registers only)",
+      "EIP, ESP, EBP, EBX, ESI, EDI (callee-saved registers for the C calling convention)",
+      "EFLAGS, CS, SS (segment registers only)",
+      "Only EIP (the instruction pointer)"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6's struct context saves the callee-saved registers per x86 C calling convention: EIP (instruction pointer), ESP (stack pointer), EBP (base pointer), EBX, ESI, EDI. Caller-saved registers (EAX, ECX, EDX) are not saved because the switch occurs at a C function boundary.",
+    "optionExplanations": [
+      "Caller-saved registers (EAX, ECX, EDX) are not preserved across function calls and not in struct context.",
+      "Correct. Struct context saves callee-saved registers: EIP, ESP, EBP, EBX, ESI, EDI.",
+      "Segment registers and EFLAGS are part of the trap frame, not the scheduler context.",
+      "Saving only EIP is insufficient; the full stack and callee-saved registers are needed."
+    ]
+  },
+  {
+    "id": "v13-012",
+    "video": 13,
+    "topic": "Process Definition in xv6",
+    "subtopic": "Virtual Address Map",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, what is the maximum size of a user process's virtual address space?",
+    "options": [
+      "640 KB (conventional memory limit)",
+      "1 MB (real mode limit)",
+      "KERNBASE = 0x80000000 = 2 GB (the user-accessible virtual address range)",
+      "Unlimited \u2014 paging allows any size"
+    ],
+    "correctAnswer": 2,
+    "explanation": "In xv6, user processes can grow their virtual address space from 0 up to KERNBASE (0x80000000 = 2 GB). Above KERNBASE is kernel space. The process's sz field tracks the current top of user memory.",
+    "optionExplanations": [
+      "640 KB is an IBM PC real-mode DOS memory constraint, not an xv6 process limit.",
+      "1 MB is the real-mode physical address limit, not a virtual process limit.",
+      "Correct. xv6 user processes can use virtual addresses from 0x00000000 up to KERNBASE (2 GB).",
+      "While paging allows large virtual spaces, xv6 explicitly limits user space to below KERNBASE."
+    ]
+  }
+]

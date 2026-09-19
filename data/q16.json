@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v16-001",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Privilege level transition (Ring 3 to Ring 0)",
+    "difficulty": "medium",
+    "type": "sequence",
+    "question": "When an interrupt occurs while a user process is executing at Ring 3, what is the first thing the x86 CPU hardware does?",
+    "options": [
+      "Jumps directly to the interrupt handler at Ring 3",
+      "Switches to the kernel stack (Ring 0 stack) using TSS, pushes SS/ESP/EFLAGS/CS/EIP onto it, looks up IDT, jumps to handler at Ring 0",
+      "Saves user registers to RAM and powers off the CPU",
+      "Asks the PIC to cancel the interrupt"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When an interrupt causes a privilege level change (Ring 3\u21920), the x86 CPU automatically: (1) loads the new kernel stack (SS0:ESP0) from the TSS, (2) pushes the old SS/ESP, EFLAGS, CS, and EIP onto the new kernel stack, (3) looks up the IDT entry, (4) loads the handler's CS:EIP.",
+    "optionExplanations": [
+      "Handler runs at Ring 0; the CPU must switch privilege and stack first.",
+      "Correct. TSS provides kernel stack; CPU pushes full state (SS/ESP/EFLAGS/CS/EIP) before jumping to Ring 0 handler.",
+      "The CPU never powers off on interrupt; it transfers to the interrupt handler.",
+      "Interrupts cannot be cancelled by the CPU asking the PIC after they are already asserted."
+    ]
+  },
+  {
+    "id": "v16-002",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Task segment descriptor",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the Task Segment (TSS) in x86, and why is it important for interrupt handling?",
+    "options": [
+      "A data segment for storing task-related strings",
+      "A hardware structure containing SS0 (Ring 0 stack segment) and ESP0 (Ring 0 stack pointer) used by the CPU when switching from Ring 3 to Ring 0 on an interrupt",
+      "A list of all running processes and their time slices",
+      "A table of valid system call numbers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The TSS (Task State Segment) is a required x86 hardware structure. When a privilege level change interrupt occurs, the CPU reads SS0:ESP0 from the TSS to find the Ring 0 kernel stack for the current process, ensuring the interrupt handler uses the correct kernel stack.",
+    "optionExplanations": [
+      "TSS is not a string or text storage structure.",
+      "Correct. TSS provides the Ring 0 stack pointer (ESP0/SS0) needed when an interrupt causes Ring 3\u2192Ring 0 transition.",
+      "Running process lists are in the OS process table; the TSS is a CPU hardware structure.",
+      "System call tables are OS software structures; TSS is a hardware mechanism."
+    ]
+  },
+  {
+    "id": "v16-003",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Trap frame",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What additional registers does the xv6 alltraps() assembly routine save beyond what the CPU hardware automatically saves?",
+    "options": [
+      "Only the program counter (EIP)",
+      "DS, ES, and all general-purpose registers (EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI)",
+      "The page directory base register (CR3)",
+      "Only the stack pointer (ESP)"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The CPU hardware automatically saves SS, ESP (if privilege change), EFLAGS, CS, and EIP. xv6's alltraps() additionally saves: DS, ES (segment registers) and the general-purpose registers (EAX, ECX, EDX, EBX, original ESP, EBP, ESI, EDI) to form the complete trap frame.",
+    "optionExplanations": [
+      "EIP is saved by the CPU hardware; alltraps saves the remaining registers.",
+      "Correct. alltraps saves DS/ES and all general-purpose registers to form the complete trap frame structure.",
+      "CR3 is not typically saved in the trap frame; it belongs to the process context.",
+      "ESP is saved by hardware on privilege switch; alltraps saves the full register set."
+    ]
+  },
+  {
+    "id": "v16-004",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Top-half vs. Bottom-half interrupt handling",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the distinction between 'top-half' and 'bottom-half' interrupt handling?",
+    "options": [
+      "Top-half runs in user space; bottom-half runs in kernel space",
+      "Top-half is the minimal, time-critical code that runs immediately in the interrupt handler (must be fast); bottom-half is deferred work scheduled to run later outside the interrupt context",
+      "Top-half handles hardware interrupts; bottom-half handles software interrupts",
+      "Both terms refer to the upper and lower halves of the IDT"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Top-half: executes in interrupt context, must be minimal and fast (acknowledges interrupt, reads data into buffer). Bottom-half: deferred, heavier processing scheduled for later execution in process/softirq context (e.g., protocol stack processing of network packets).",
+    "optionExplanations": [
+      "Both halves run in kernel space; the distinction is about execution timing and context.",
+      "Correct. Top-half = fast immediate handling; bottom-half = deferred heavy processing outside interrupt context.",
+      "Both can be triggered by hardware or software events; the split is about processing urgency.",
+      "The IDT has no upper/lower halves; it is indexed by vector number."
+    ]
+  },
+  {
+    "id": "v16-005",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Interrupt Latency",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is interrupt latency, and what factors affect it?",
+    "options": [
+      "The time required to load the OS kernel during boot",
+      "The time from when a device signals an interrupt to when the interrupt handler begins executing, affected by interrupt masking duration, kernel processing, and controller acknowledgment delays",
+      "The network packet transmission delay in milliseconds",
+      "The time for a context switch between two processes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Interrupt latency = time from interrupt assertion to handler execution. Factors: (1) Controller delay (PIC encoding, INTA cycle), (2) CPU response (current instruction completion), (3) OS interrupt masking duration (period with interrupts disabled via CLI), (4) interrupt priority and nested interrupt depth.",
+    "optionExplanations": [
+      "Boot loading time is system startup latency, not interrupt latency.",
+      "Correct. Interrupt latency measures handler response time; controller delays and interrupt masking are key factors.",
+      "Network packet delay (RTT) is measured at the network layer, not interrupt latency.",
+      "Context switch time is a component of process scheduling overhead, not interrupt latency."
+    ]
+  },
+  {
+    "id": "v16-006",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Interrupt Latency",
+    "difficulty": "hard",
+    "type": "understanding",
+    "question": "Why must the OS kernel minimize the duration of critical sections where interrupts are disabled (CLI/STI) to keep interrupt latency low?",
+    "options": [
+      "Disabled interrupts reduce CPU clock speed",
+      "While interrupts are disabled, new hardware events cannot be serviced \u2014 they queue up. Prolonged disabling increases the maximum interrupt latency, potentially missing real-time deadlines",
+      "Disabling interrupts crashes the process scheduler",
+      "Interrupts must be disabled for all kernel operations"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Interrupt masking (CLI) blocks all maskable hardware interrupts. Any device event occurring during the masked window queues until STI re-enables interrupts. The longer interrupts are disabled, the more delay accumulates between event and handler \u2014 directly increasing worst-case interrupt latency.",
+    "optionExplanations": [
+      "Interrupt masking is a software flag; it does not affect CPU clock speed.",
+      "Correct. Masking interrupts increases latency: device events queued during CLI period must wait until STI.",
+      "The scheduler uses interrupts (timer IRQ); disabling interrupts affects scheduling but doesn't crash the OS.",
+      "Interrupts must be disabled only for brief critical sections accessing shared data, not for all kernel operations."
+    ]
+  },
+  {
+    "id": "v16-007",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Circular buffer (Read pointer, Write pointer)",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6's keyboard driver, why is a circular buffer used to hold keyboard input characters?",
+    "options": [
+      "Circular buffers compress keystrokes to save memory",
+      "The interrupt handler (top-half) writes characters to the buffer at interrupt time; the reading process reads from the buffer asynchronously \u2014 decoupling fast interrupt arrival from slower process consumption",
+      "Circular buffers prevent keyboard IRQ from firing",
+      "Circular buffers automatically translate ASCII to Unicode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The keyboard circular buffer (with read and write pointers) decouples the interrupt handler (which runs at interrupt priority and must be fast) from the consumer process (which reads at process execution speed). Characters accumulate in the buffer without loss when the consumer is temporarily slow.",
+    "optionExplanations": [
+      "Circular buffers are a flow control mechanism, not a compression mechanism.",
+      "Correct. Circular buffer decouples interrupt-time write (fast) from process-time read (slower) without blocking either.",
+      "The circular buffer stores characters; it doesn't prevent IRQ generation.",
+      "ASCII/Unicode translation is a text processing concern, not the circular buffer's purpose."
+    ]
+  },
+  {
+    "id": "v16-008",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Return from interrupt (IRET)",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the difference between a normal function return (RET) and an interrupt return (IRET)?",
+    "options": [
+      "They are identical \u2014 both pop EIP from the stack",
+      "IRET additionally restores EFLAGS and (on privilege level change) CS, SS, and ESP, atomically restoring the full pre-interrupt CPU state including privilege level",
+      "IRET restores only EFLAGS; RET restores EIP and CS",
+      "IRET is only available in real mode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "RET pops only EIP (and CS for far call). IRET pops EIP, CS, and EFLAGS (all three were saved by the CPU at interrupt time). If a privilege change occurred, IRET also pops ESP and SS, restoring the pre-interrupt stack and privilege level atomically.",
+    "optionExplanations": [
+      "IRET pops more than EIP; it also pops CS and EFLAGS (at minimum).",
+      "Correct. IRET pops EIP/CS/EFLAGS (+ SS/ESP if privilege change), fully restoring pre-interrupt state.",
+      "IRET restores EIP, CS, EFLAGS, and optionally SS/ESP; not just EFLAGS alone.",
+      "IRET is used in both real mode and protected mode for returning from interrupt handlers."
+    ]
+  },
+  {
+    "id": "v16-009",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Automatic register saving (SS, ESP, EFLAGS, CS, EIP)",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Why does the CPU automatically save EIP on the kernel stack (not user stack) when an interrupt occurs while in Ring 3?",
+    "options": [
+      "Because the user stack might be invalid, corrupted, or full \u2014 the kernel stack (from TSS) is guaranteed valid",
+      "Because EIP must be saved in a write-protected memory region",
+      "Because EFLAGS contains the Ring 3 privilege bits",
+      "Because the user stack is on disk"
+    ],
+    "correctAnswer": 0,
+    "explanation": "When an interrupt causes Ring 3\u2192Ring 0 transition, the user stack (ESP) might be arbitrarily placed, full, or even corrupted. The kernel must use the pre-configured, guaranteed-valid kernel stack (loaded from TSS SS0:ESP0) to save state safely.",
+    "optionExplanations": [
+      "Correct. TSS provides a known-valid kernel stack; user stack cannot be trusted on an external interrupt.",
+      "Write protection is not the reason; the kernel stack is in writable kernel memory.",
+      "EFLAGS is saved including the CPL bits; the reason for using kernel stack is reliability, not EFLAGS content.",
+      "User stack is in RAM; 'on disk' is incorrect."
+    ]
+  },
+  {
+    "id": "v16-010",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Nested interrupts",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "A timer interrupt fires while the keyboard interrupt handler is executing. The kernel has NOT re-enabled interrupts. What happens?",
+    "options": [
+      "The timer interrupt is processed immediately, nesting inside the keyboard handler",
+      "The timer interrupt is masked (pending) until the keyboard handler completes and the CPU re-enables interrupts (STI or IRET)",
+      "The system crashes due to nested interrupt conflict",
+      "Both interrupts are lost permanently"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When an interrupt gate is used (not a trap gate), the CPU clears the IF flag (disables interrupts) upon entering the handler. The timer IRQ fires but the CPU holds it pending. Only when the keyboard handler executes IRET (which restores EFLAGS with IF=1) does the timer get serviced.",
+    "optionExplanations": [
+      "Nested interrupt handling requires re-enabling interrupts (STI) within the handler; without it, nesting doesn't occur.",
+      "Correct. With IF=0 (interrupts disabled), the pending timer interrupt waits until IRET restores IF=1.",
+      "A pending interrupt does not crash the system; it is queued in the PIC/APIC.",
+      "Pending interrupts are not lost; they are serviced once IF is re-enabled."
+    ]
+  },
+  {
+    "id": "v16-011",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "IDT indexing (Segment selector, offset)",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "When the CPU receives interrupt vector number N from the PIC, how does it locate the interrupt handler?",
+    "options": [
+      "It scans memory linearly for a handler labeled 'interrupt_N'",
+      "It multiplies N by 8 (size of each IDT gate descriptor) and adds the IDTR base address to get the gate descriptor address, then reads the segment selector and offset from it",
+      "It reads the handler address from a hardcoded ROM table",
+      "It calls the PIC again to request the handler address"
+    ],
+    "correctAnswer": 1,
+    "explanation": "IDT lookup: address of entry N = IDTR.base + N*8 (each gate descriptor is 8 bytes). The CPU reads the gate descriptor at that address, extracts the segment selector and 32-bit offset (handler address), and jumps to selector:offset.",
+    "optionExplanations": [
+      "The IDT is an indexed array; there is no linear scan.",
+      "Correct. IDT[N] = IDTR.base + N*8; the gate descriptor contains the segment selector and handler offset.",
+      "Handler addresses are in the OS-configured IDT in RAM; they are not hardcoded in ROM.",
+      "The PIC provides only the vector number; the CPU uses the IDT to find the handler address."
+    ]
+  },
+  {
+    "id": "v16-012",
+    "video": 16,
+    "topic": "Interrupt Handling",
+    "subtopic": "Top-half vs. Bottom-half interrupt handling",
+    "difficulty": "hard",
+    "type": "understanding",
+    "question": "Why is it important that interrupt handlers (top-half) do NOT perform blocking operations like sleeping or waiting for disk I/O?",
+    "options": [
+      "Because interrupt handlers cannot use C language constructs",
+      "Because interrupt handlers run with interrupts disabled or at high priority; blocking would prevent any other interrupt from being serviced, causing system-wide deadlock or missed events",
+      "Because disk I/O is always faster than interrupt handlers",
+      "Because blocking operations are only allowed in user mode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Interrupt handlers run in interrupt context (not a schedulable process context). Blocking would mean the CPU is stuck in interrupt context indefinitely, unable to service other interrupts, run other processes, or respond to hardware events \u2014 causing deadlocks and missed timing deadlines.",
+    "optionExplanations": [
+      "Interrupt handlers use standard C; the restriction is about execution context semantics.",
+      "Correct. Blocking in interrupt context (non-schedulable) causes deadlock: no other interrupt can run while the CPU is stuck.",
+      "Disk I/O speed is irrelevant; the issue is that waiting for I/O requires sleeping (relinquishing CPU), which interrupt context cannot do.",
+      "Blocking is allowed in process context (Ring 0 kernel mode); interrupt context (ISR) cannot block."
+    ]
+  }
+]

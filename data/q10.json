@@ -1,0 +1,301 @@
+[
+  {
+    "id": "v10-001",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "Segment Descriptor structure",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In x86, a Segment Descriptor is a 64-bit (8-byte) structure. Which of the following fields does it contain?",
+    "options": [
+      "Page directory index, page table index, offset",
+      "Segment base address, segment limit, DPL privilege level, and type flags",
+      "TLB tag, physical frame number, and dirty bit",
+      "Inode number, file size, and access permissions"
+    ],
+    "correctAnswer": 1,
+    "explanation": "An x86 segment descriptor contains: 32-bit segment base address (split across the descriptor), 20-bit limit, 2-bit DPL (Descriptor Privilege Level 0-3), and type bits indicating whether it is a code or data segment and its read/write/execute permissions.",
+    "optionExplanations": [
+      "Page directory and table indices are paging constructs, not segment descriptor fields.",
+      "Correct. Segment descriptor = base address + limit + DPL + type flags (code/data, readable, writable, executable).",
+      "TLB tags and physical frame numbers are paging/cache hardware fields.",
+      "Inode and file metadata belong to the file system layer."
+    ]
+  },
+  {
+    "id": "v10-002",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "xv6 SEG macro",
+    "difficulty": "hard",
+    "type": "understanding",
+    "question": "In xv6, the SEG macro is used to create segment descriptor entries. Which of the following correctly describes xv6's segment setup?",
+    "options": [
+      "xv6 creates hundreds of different segment descriptors for each process",
+      "xv6 uses a flat memory model with minimal segmentation: kernel code, kernel data, user code, user data segments with base=0 and limit=4GB",
+      "xv6 uses a full segmentation scheme with per-process LDTs",
+      "xv6 disables the segmentation unit entirely"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 uses a minimalist flat segmentation: four segment descriptors (kernel code, kernel data, user code, user data) with base=0 and limit=0xFFFFFFFF (4 GB), effectively making linear=logical address. All real protection comes from paging.",
+    "optionExplanations": [
+      "xv6's simplicity requires only 4-6 GDT entries, not hundreds.",
+      "Correct. xv6 uses a flat segmentation model (base=0, limit=4GB) so segmentation is transparent; paging provides the real protection.",
+      "xv6 does not use per-process LDTs; it uses a single global GDT.",
+      "x86 requires segmentation to be active; xv6 uses it but configures it to have no effect (flat model)."
+    ]
+  },
+  {
+    "id": "v10-003",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "CR3",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6's paging implementation, what physical value is loaded into CR3 when a user process begins executing?",
+    "options": [
+      "The virtual address of the process's stack pointer",
+      "The physical address of the process's page directory (pgdir)",
+      "The inode number of the process's executable file",
+      "The PID of the process"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CR3 must contain the physical address of the process's page directory. xv6 uses the v2p (virtual-to-physical) macro to convert the kernel virtual address of the page directory to a physical address before loading it into CR3.",
+    "optionExplanations": [
+      "The stack pointer (ESP) is a separate register; CR3 holds the page directory physical address.",
+      "Correct. CR3 = physical address of page directory (pgdir); the MMU uses this to begin address translation.",
+      "Inodes are file system metadata; CR3 holds a memory management control value.",
+      "PID is a software identifier; CR3 holds a hardware MMU control register value."
+    ]
+  },
+  {
+    "id": "v10-004",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "v2p/p2v macros",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, what is the purpose of the v2p (virtual-to-physical) macro?",
+    "options": [
+      "To translate user virtual addresses using the page table",
+      "To convert a kernel virtual address to the corresponding physical address by subtracting KERNBASE",
+      "To map a file path to its inode number",
+      "To convert a physical frame number to a page table index"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 maps the kernel at virtual address KERNBASE (0x80000000) corresponding to physical address 0. v2p(va) = va - KERNBASE subtracts the kernel base offset to get the physical address. This is needed when loading values into hardware registers (like CR3) that require physical addresses.",
+    "optionExplanations": [
+      "User virtual address translation is done by the walkpgdir function, not the v2p macro.",
+      "Correct. v2p subtracts KERNBASE to convert kernel virtual \u2192 physical address for hardware register loading.",
+      "File path to inode mapping is a VFS/filesystem operation.",
+      "Page table index calculation uses the page number, not v2p."
+    ]
+  },
+  {
+    "id": "v10-005",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "CR0",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What is the significance of setting the PG (Paging Enable) bit in the CR0 register?",
+    "options": [
+      "It enables protected mode on x86",
+      "It enables the floating-point unit",
+      "It enables hardware paging \u2014 all subsequent memory addresses are treated as virtual and translated by the MMU",
+      "It enables interrupts by setting the IF flag"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Setting the PG bit (bit 31) in CR0 enables paging. After this instruction, the CPU treats all addresses as virtual and routes them through the page table walk (using CR3). Before this, linear addresses are used directly as physical addresses.",
+    "optionExplanations": [
+      "Protected mode is enabled by the PE bit (bit 0) in CR0, not the PG bit.",
+      "The FPU is controlled by CR0's EM and MP bits; PG controls paging.",
+      "Correct. CR0.PG = 1 enables the paging unit; all memory accesses are then subject to MMU translation.",
+      "Interrupts are controlled by the IF flag in EFLAGS, not by CR0.PG."
+    ]
+  },
+  {
+    "id": "v10-006",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "walkpgdir",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What does the xv6 walkpgdir() function do?",
+    "options": [
+      "It traverses the process table to find a process by PID",
+      "It walks the two-level page directory structure to find (or create) the page table entry for a given virtual address",
+      "It defragments free memory pages",
+      "It iterates through all open file descriptors"
+    ],
+    "correctAnswer": 1,
+    "explanation": "walkpgdir(pgdir, va, alloc) takes a page directory, a virtual address, and an alloc flag. It extracts the page directory index (PDX), looks up the page directory entry, then finds the page table and returns a pointer to the page table entry (PTE) for that virtual address. If alloc=1 and the page table doesn't exist, it allocates one.",
+    "optionExplanations": [
+      "Process table traversal is done in process scheduling code, not walkpgdir.",
+      "Correct. walkpgdir navigates the two-level page table structure to locate the PTE for a virtual address.",
+      "Memory defragmentation is not a function of walkpgdir.",
+      "File descriptor iteration is done in process/file management code."
+    ]
+  },
+  {
+    "id": "v10-007",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "kalloc/kfree",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, how does kalloc() manage physical memory allocation?",
+    "options": [
+      "It uses a buddy allocator with 2^n size blocks",
+      "It maintains a linked list of free 4 KB physical pages; kalloc() removes and returns the head page, kfree() pushes a page back to the list head",
+      "It uses the malloc() C library for kernel heap allocation",
+      "It allocates memory using segment expansion via the brk() system call"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6's kalloc() uses a simple linked list of free 4 KB physical page frames. The free list is maintained as a singly linked list where each free page's first bytes store a pointer to the next free page. kalloc() pops from the head; kfree() pushes to the head.",
+    "optionExplanations": [
+      "Buddy allocators are used in Linux; xv6 uses a simpler free page linked list.",
+      "Correct. xv6 uses a linked list of free 4 KB pages; kalloc pops from head, kfree pushes to head.",
+      "malloc is a user-space library; the kernel uses its own physical memory allocator.",
+      "brk() is a system call for user-space heap extension; kalloc manages physical kernel memory."
+    ]
+  },
+  {
+    "id": "v10-008",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "kmap",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the purpose of the kmap structure in xv6's kernel memory setup?",
+    "options": [
+      "It maps keyboard keycodes to ASCII characters",
+      "It defines the kernel's virtual-to-physical memory region mappings (KERNBASE, I/O space, extended memory) used to set up the initial kernel page table",
+      "It tracks which processes have access to kernel data",
+      "It compresses kernel code sections to fit in smaller memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The kmap array in xv6 defines how the kernel maps different physical memory regions into the upper virtual address space: base memory (with KERNBASE offset), I/O space, extended memory, and kernel code/data. It is used by setupkvm() to build the kernel page table.",
+    "optionExplanations": [
+      "Keyboard mapping is a device driver concern, unrelated to kernel memory mapping.",
+      "Correct. kmap defines the kernel's virtual memory layout: KERNBASE offset, I/O hole, extended RAM regions.",
+      "Process access control uses page table protection bits, not kmap.",
+      "kmap is a mapping definition array, not a compression scheme."
+    ]
+  },
+  {
+    "id": "v10-009",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "Free page linked list",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "Why does xv6 store the free page list pointer in the first bytes of each free physical page itself?",
+    "options": [
+      "To encrypt the page before it is reused",
+      "To avoid needing a separate data structure for the free list \u2014 free pages can store their own next pointer at zero cost",
+      "To mark the page as dirty for the DMA controller",
+      "To store the page's PID before deallocation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Since a free page is, by definition, not in use by any process, its physical memory can safely store the pointer to the next free page in the list. This elegant trick eliminates the need for a separate metadata array to track free pages.",
+    "optionExplanations": [
+      "Storing a pointer is not encryption.",
+      "Correct. Using free pages to store their own next pointers is a classic O(1) space trick \u2014 free memory is used to track itself.",
+      "DMA dirty marking uses page table bits, not free page content.",
+      "PID is not stored in free pages; they belong to no process."
+    ]
+  },
+  {
+    "id": "v10-010",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "Paging Implementation",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What does the xv6 mappages() function accomplish?",
+    "options": [
+      "It maps system calls to their handler functions",
+      "It inserts page table entries to create a mapping from a range of virtual addresses to physical addresses with specified permissions",
+      "It maps keyboard input to terminal output",
+      "It allocates RAM pages from the free list"
+    ],
+    "correctAnswer": 1,
+    "explanation": "mappages(pgdir, va, size, pa, perm) calls walkpgdir() for each page-aligned virtual address in the range and fills in the corresponding PTE with the physical address and permission bits (PTE_P present, PTE_W writable, PTE_U user-accessible).",
+    "optionExplanations": [
+      "System call dispatch uses the syscall table; mappages is a memory mapping function.",
+      "Correct. mappages creates virtual-to-physical mappings by writing PTEs for a virtual address range.",
+      "Keyboard-to-terminal I/O is handled by device driver code.",
+      "kalloc() allocates physical pages; mappages creates the virtual-to-physical mapping in the page table."
+    ]
+  },
+  {
+    "id": "v10-011",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "Segment Descriptor structure",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In xv6's GDT, what is the DPL (Descriptor Privilege Level) value for kernel code and data segments?",
+    "options": [
+      "DPL = 3 (user level)",
+      "DPL = 0 (kernel level)",
+      "DPL = 1 (driver level)",
+      "DPL = 2 (supervisor level)"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 kernel code and data segments have DPL = 0 (Ring 0, the most privileged level). User code and data segments have DPL = 3 (Ring 3, the least privileged level). The CPU enforces that Ring 3 code cannot directly use Ring 0 segments.",
+    "optionExplanations": [
+      "DPL 3 is for user-level segments; kernel segments use DPL 0.",
+      "Correct. Kernel segments have DPL=0 (highest privilege); user segments have DPL=3.",
+      "DPL 1 and 2 are intermediate privilege levels not used by xv6.",
+      "DPL 2 is not used by xv6; it uses only DPL 0 (kernel) and DPL 3 (user)."
+    ]
+  },
+  {
+    "id": "v10-012",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "Kernel memory mapping",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "In xv6, all kernel virtual addresses are mapped at KERNBASE + physical_address. Why is this constant offset mapping useful?",
+    "options": [
+      "It enables the kernel to use DMA without driver support",
+      "It allows simple, efficient conversion between kernel virtual and physical addresses using v2p/p2v macros without a page table walk",
+      "It prevents the kernel from being swapped to disk",
+      "It automatically allocates kernel heap memory on demand"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Since kernel virtual addresses are always exactly KERNBASE above their physical addresses, converting between them is a simple arithmetic operation: p2v(pa) = pa + KERNBASE, v2p(va) = va - KERNBASE. No page table walk is needed for kernel address conversion.",
+    "optionExplanations": [
+      "DMA operations require kernel driver support; the constant offset is unrelated.",
+      "Correct. The constant offset allows O(1) arithmetic conversion between kernel VA and PA via p2v/v2p macros.",
+      "Kernel swapping is prevented by other mechanisms (never marking kernel pages for eviction).",
+      "Dynamic kernel heap is handled by kalloc/kfree; the constant offset is about address translation efficiency."
+    ]
+  },
+  {
+    "id": "v10-013",
+    "video": 10,
+    "topic": "Memory Management in x86/xv6",
+    "subtopic": "Paging Implementation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What does the PDX(va) macro compute in xv6 paging implementation?",
+    "options": [
+      "The physical frame number of the page",
+      "The page directory index \u2014 the top 10 bits of the virtual address \u2014 used to index into the page directory",
+      "The page table entry permission bits",
+      "The byte offset within the 4 KB page"
+    ],
+    "correctAnswer": 1,
+    "explanation": "PDX(va) extracts bits 22-31 of the virtual address (top 10 bits) to form the page directory index. This index is used to select the correct page directory entry, which then points to the second-level page table.",
+    "optionExplanations": [
+      "Physical frame numbers are found inside PTEs after translation, not by PDX.",
+      "Correct. PDX extracts the top 10 bits of VA as the page directory index for the first level of the two-level page walk.",
+      "Permission bits are set in PTEs; PDX only extracts the directory index.",
+      "The byte offset within a 4 KB page is the lower 12 bits, extracted by different mask operations."
+    ]
+  }
+]

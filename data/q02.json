@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v02-001",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Hardware abstraction",
+    "difficulty": "easy",
+    "type": "sequence",
+    "question": "Which correctly represents the bottom-up abstraction layers of a computer system?",
+    "options": [
+      "Transistors \u2192 Logic Gates \u2192 Hardware \u2192 Operating System \u2192 User Applications",
+      "User Applications \u2192 Operating System \u2192 Logic Gates \u2192 Transistors",
+      "OS \u2192 Transistors \u2192 Logic Gates \u2192 Applications \u2192 Hardware",
+      "Logic Gates \u2192 User Applications \u2192 Transistors \u2192 OS \u2192 Hardware"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Computer systems build abstractions from physical silicon (transistors) to digital logic (gates), system hardware, then the OS manages hardware for applications at the top.",
+    "optionExplanations": [
+      "Correct. Transistors form logic gates, which form hardware modules, managed by the OS for applications.",
+      "This incorrectly orders software layers below logic gates.",
+      "OS is software and sits above hardware components.",
+      "User applications sit at the top of the stack."
+    ]
+  },
+  {
+    "id": "v02-002",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "System calls",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the primary interface through which user-level applications request services from the OS kernel?",
+    "options": [
+      "Direct Memory Access (DMA) registers",
+      "Compiler directives",
+      "System Calls",
+      "Interrupt Vector Table modifications"
+    ],
+    "correctAnswer": 2,
+    "explanation": "System calls provide a controlled boundary for user applications to request kernel services like file I/O, process creation, and network access.",
+    "optionExplanations": [
+      "DMA registers are managed by the kernel/hardware, not directly by user applications.",
+      "Compiler directives assist source code translation, not runtime OS services.",
+      "Correct. System calls are the programmatic API for user-to-kernel service requests.",
+      "Modifying the IVT requires Ring 0 privilege and cannot be done by user applications."
+    ]
+  },
+  {
+    "id": "v02-003",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Application isolation (Sandboxing)",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "If a buggy user application performs a divide-by-zero, what does the OS's isolation mechanism ensure?",
+    "options": [
+      "The entire computer system crashes and powers off immediately",
+      "Only the offending application is terminated or signaled, leaving the OS and other processes running",
+      "The OS automatically rewrites the application's source code",
+      "The CPU switches off protection rings permanently"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Application sandboxing and process isolation ensure that runtime crashes or security violations in one application do not destabilize the kernel or other running applications.",
+    "optionExplanations": [
+      "Modern OS kernels protect the overall system from user application faults.",
+      "Correct. Process isolation isolates faults, killing or signaling only the faulty application.",
+      "The OS cannot dynamically modify compiled application source code.",
+      "Protection rings remain active and enforced by CPU hardware."
+    ]
+  },
+  {
+    "id": "v02-004",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Types of operating systems",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "What is the defining requirement of a Real-Time OS (RTOS) compared to a general-purpose Desktop OS?",
+    "options": [
+      "RTOS must provide high-resolution graphical user interfaces",
+      "RTOS must maximize throughput for large video encoding jobs",
+      "RTOS must guarantee deterministic response times within strict deadline boundaries",
+      "RTOS must run on multi-terabyte memory server clusters"
+    ],
+    "correctAnswer": 2,
+    "explanation": "An RTOS is defined by determinism and strict deadline constraints, ensuring tasks complete within specified real-time limits \u2014 critical for embedded control systems.",
+    "optionExplanations": [
+      "GUIs are not a core requirement for RTOS systems (often headless embedded systems).",
+      "General-purpose OS prioritizes throughput; RTOS prioritizes deterministic latency.",
+      "Correct. Deterministic execution and meeting hard/soft deadlines are key for RTOS.",
+      "RTOS systems frequently run on resource-constrained embedded microcontrollers."
+    ]
+  },
+  {
+    "id": "v02-005",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "XV6",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is xv6 as introduced in the NPTEL Operating Systems course?",
+    "options": [
+      "A modern re-implementation of Unix Version 6 in C for educational instruction on x86",
+      "A proprietary commercial operating system developed by Microsoft",
+      "A hardware graphics card architecture",
+      "A web browser rendering engine"
+    ],
+    "correctAnswer": 0,
+    "explanation": "xv6 is a simple teaching operating system developed at MIT, re-implementing Unix V6 in modern C for x86 processor architectures.",
+    "optionExplanations": [
+      "Correct. xv6 provides a clean, concise Unix V6 implementation used for teaching kernel concepts.",
+      "xv6 is open-source educational software created at MIT, not a commercial product.",
+      "xv6 is an operating system, not a graphics processing card.",
+      "xv6 is a full kernel and OS, not a web browser component."
+    ]
+  },
+  {
+    "id": "v02-006",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Hardware abstraction",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "How does hardware abstraction provided by the OS benefit application developers?",
+    "options": [
+      "Allows developers to write code using abstract file/socket APIs without knowing specific disk sector geometry or NIC register details",
+      "Removes the need to compile source code into machine instructions",
+      "Doubles physical RAM capacity automatically",
+      "Allows application code to run without CPU execution cycles"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Hardware abstraction provides standardized APIs (e.g., read/write files), masking specific hardware controller implementation details from application developers.",
+    "optionExplanations": [
+      "Correct. Developers interact with unified abstractions (files, sockets) rather than raw hardware registers.",
+      "Code still must be compiled to machine language.",
+      "Abstraction manages RAM but cannot physically expand hardware memory capacity.",
+      "Applications still require CPU execution cycles."
+    ]
+  },
+  {
+    "id": "v02-007",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Resource management",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Which OS subsystem is responsible for allocating CPU execution time among multiple active applications?",
+    "options": [
+      "File System Driver",
+      "CPU Scheduler",
+      "Virtual Memory Manager",
+      "Network Protocol Stack"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The CPU Scheduler determines which process gets to execute on the CPU core and for how long (time quanta), enabling concurrency on single-core and parallelism on multi-core systems.",
+    "optionExplanations": [
+      "File systems manage disk storage layout and access.",
+      "Correct. The CPU scheduler arbitrates CPU time allocation.",
+      "Virtual Memory Manager handles address space allocation and paging.",
+      "Network stack handles socket communication and network frames."
+    ]
+  },
+  {
+    "id": "v02-008",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Types of operating systems",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "Which type of OS is typically optimized for minimal resource footprint, low power, and dedicated hardware control?",
+    "options": [
+      "Enterprise Server OS",
+      "Mainframe OS",
+      "Embedded OS",
+      "Cloud Hypervisor OS"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Embedded operating systems run on resource-constrained microcontrollers in devices like smart appliances, automotive control units, and IoT sensors.",
+    "optionExplanations": [
+      "Enterprise Server OS is optimized for throughput and massive scalability.",
+      "Mainframe OS handles large-scale batch processing and transactions.",
+      "Correct. Embedded operating systems focus on low memory footprint and energy efficiency.",
+      "Hypervisors manage multiple virtual machines on powerful hardware."
+    ]
+  },
+  {
+    "id": "v02-009",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Resource management",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "When two processes attempt to write to the printer simultaneously, how does the OS manage resource contention?",
+    "options": [
+      "Interleaves output characters randomly on the printed page",
+      "Allows both processes to write directly to hardware ports concurrently",
+      "Spools printing requests into a queue, granting exclusive access to one process at a time",
+      "Crashes the OS kernel immediately"
+    ],
+    "correctAnswer": 2,
+    "explanation": "The OS manages exclusive non-shareable resources like printers using print spoolers/queues to maintain device state consistency.",
+    "optionExplanations": [
+      "Random interleaving would result in corrupted document output.",
+      "Direct concurrent hardware port writes produce race conditions and garbage output.",
+      "Correct. Spooling queues requests to provide clean sequential access to shared devices.",
+      "Device contention is a standard scenario managed gracefully by the OS."
+    ]
+  },
+  {
+    "id": "v02-010",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Application isolation (Sandboxing)",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "What hardware mechanisms combine with OS software to enforce process sandboxing on modern x86 systems?",
+    "options": [
+      "Graphics pipeline and audio DACs",
+      "PCI bus clock rates and serial port baud rates",
+      "CPU privilege levels (Ring 0/Ring 3) and MMU page table protection bits",
+      "BIOS boot sequence flags and CMOS battery voltages"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Process sandboxing relies on CPU hardware privilege rings (preventing unprivileged instructions) and MMU page tables (preventing unauthorized memory access).",
+    "optionExplanations": [
+      "Graphics and audio peripherals do not enforce process isolation.",
+      "Bus clock rates are physical timing parameters, not security enforcement mechanisms.",
+      "Correct. Rings enforce instruction privilege; MMU protection bits enforce address space boundaries.",
+      "BIOS and CMOS govern hardware startup, not runtime process isolation."
+    ]
+  },
+  {
+    "id": "v02-011",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Hardware abstraction",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Which property of an OS design ensures that applications written for one hardware platform can run unchanged on a different hardware platform?",
+    "options": [
+      "Memory compaction",
+      "Hardware portability through OS abstraction",
+      "Direct hardware programming",
+      "Pipeline flushing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "By abstracting hardware behind a standard OS API, applications need not be rewritten when the underlying hardware changes \u2014 only the OS device drivers and hardware-specific code need updating.",
+    "optionExplanations": [
+      "Memory compaction is a memory management technique, not a portability mechanism.",
+      "Correct. OS abstraction layers provide hardware portability for application code.",
+      "Direct hardware programming is the opposite of portable; it ties code to specific hardware.",
+      "Pipeline flushing is a CPU microarchitecture technique unrelated to software portability."
+    ]
+  },
+  {
+    "id": "v02-012",
+    "video": 2,
+    "topic": "Computer System Layers",
+    "subtopic": "Types of operating systems",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What distinguishes a Secure OS from a standard Desktop OS?",
+    "options": [
+      "Secure OS has a larger memory footprint and more user-facing features",
+      "Secure OS enforces formal security policies (mandatory access control, verified boot) to prevent unauthorized access",
+      "Secure OS runs only on embedded microcontrollers",
+      "Secure OS removes the CPU scheduler for simplicity"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Secure operating systems apply formal security policies such as mandatory access control (MAC), cryptographic verification, and minimal attack surface design to prevent unauthorized data access or privilege escalation.",
+    "optionExplanations": [
+      "Secure OS typically has a smaller, audited codebase \u2014 the opposite of larger.",
+      "Correct. Secure OS enforces formal, often mathematical security policies above general-purpose OS.",
+      "Secure OS is a security classification, not a platform classification.",
+      "Secure OS still requires a CPU scheduler for running processes."
+    ]
+  }
+]

@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v09-001",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segmentation",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the fundamental concept behind segmentation as a memory management scheme?",
+    "options": [
+      "Dividing physical RAM into equal-sized 4 KB frames",
+      "Dividing a program's logical address space into variable-sized, semantically meaningful segments such as code, data, stack, and heap",
+      "Assigning each process a fixed-size memory partition",
+      "Mapping disk blocks to physical RAM pages"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Segmentation divides a program's address space into logical units (segments) that match the program's natural structure \u2014 e.g., separate segments for code, global data, stack, and heap \u2014 each with its own size and access rights.",
+    "optionExplanations": [
+      "Equal-sized 4 KB frames describe paging, not segmentation.",
+      "Correct. Segmentation maps logical program divisions to variable-size independent memory regions.",
+      "Fixed-size partitions describe the partition model; segments are variable-size.",
+      "Disk-to-RAM mapping is a paging/swapping concept."
+    ]
+  },
+  {
+    "id": "v09-002",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segment descriptor",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What information does a Segment Descriptor contain?",
+    "options": [
+      "The virtual page number and dirty bit",
+      "Base address, Limit (size), Privilege level (DPL), and Type (executable/readable/writable)",
+      "Physical frame number and offset",
+      "Inode number and file creation timestamp"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A segment descriptor is a 64-bit structure (in x86) containing: the segment's base physical address, limit (size), descriptor privilege level (DPL: 0-3), and type bits (code/data, readable, writable, executable).",
+    "optionExplanations": [
+      "Virtual page number and dirty bits are page table entry fields, not segment descriptor fields.",
+      "Correct. Segment descriptors contain base address, limit, DPL, and type/access bits.",
+      "Physical frame numbers are page table fields.",
+      "Inodes and timestamps are file system metadata."
+    ]
+  },
+  {
+    "id": "v09-003",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "GDT",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the Global Descriptor Table (GDT) in x86 segmentation?",
+    "options": [
+      "A table of page directory entries for virtual memory mapping",
+      "A kernel data structure holding segment descriptors accessible to all processes on the system",
+      "A list of running processes and their priorities",
+      "A cache of recently accessed physical memory frames"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The GDT is a kernel-maintained table of segment descriptors used by all processes. It typically contains descriptors for kernel code/data segments and user code/data segments. Its base address and size are loaded into the GDTR register.",
+    "optionExplanations": [
+      "Page directory entries are part of the paging system, not the GDT.",
+      "Correct. The GDT holds global segment descriptors used system-wide, loaded via the LGDT instruction.",
+      "Running process lists are maintained in the process table (ptable), not the GDT.",
+      "Page frame caches are TLBs; the GDT holds segment descriptors."
+    ]
+  },
+  {
+    "id": "v09-004",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "LDT",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "What distinguishes the Local Descriptor Table (LDT) from the Global Descriptor Table (GDT)?",
+    "options": [
+      "GDT contains page table entries; LDT contains segment descriptors",
+      "GDT is shared globally by all processes; LDT is per-process, containing descriptors specific to one process",
+      "Both tables contain identical data for redundancy",
+      "LDT is in hardware; GDT is in software"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The GDT is a single system-wide table. The LDT is optional and per-process, containing segments unique to a specific process. The LDTR register points to the current process's LDT. Modern OS designs (including xv6) often use only the GDT.",
+    "optionExplanations": [
+      "Both GDT and LDT contain segment descriptors; they differ in scope (global vs per-process).",
+      "Correct. GDT = global/shared; LDT = per-process, containing process-specific segment descriptors.",
+      "They contain different entries; the GDT has global segments and LDT has process-local segments.",
+      "Both GDT and LDT are RAM data structures; GDTR/LDTR are the registers holding their addresses."
+    ]
+  },
+  {
+    "id": "v09-005",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segment registers",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What do segment selector registers CS, DS, SS, ES do in x86 segmented memory addressing?",
+    "options": [
+      "They hold the full 32-bit physical address of each segment",
+      "They contain an index into the GDT/LDT that identifies which segment descriptor to use for code, data, stack, and extra data segments respectively",
+      "They store virtual page numbers",
+      "They hold interrupt handler addresses"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CS (Code Segment), DS (Data Segment), SS (Stack Segment), ES (Extra Segment) are 16-bit registers. They contain a segment selector \u2014 an index into the GDT or LDT \u2014 specifying which segment descriptor to use for the corresponding memory access type.",
+    "optionExplanations": [
+      "Segment selectors are indices into the descriptor table, not full physical addresses.",
+      "Correct. Segment selectors index into GDT/LDT to identify the active segment descriptor for each access type.",
+      "Page numbers are part of the paging system; segment selectors are for the segmentation unit.",
+      "Interrupt handler addresses are in the IDT, not in segment registers."
+    ]
+  },
+  {
+    "id": "v09-006",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Linear address",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In the x86 memory translation pipeline, what is a 'linear address'?",
+    "options": [
+      "A physical address that hardware uses to access RAM chips",
+      "The address produced by the segmentation unit (segment base + offset) that becomes the input to the paging unit",
+      "A virtual address generated by the compiler",
+      "An address used only in real mode systems"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In x86: logical address (segment:offset) \u2192 [segmentation unit] \u2192 linear address \u2192 [paging unit] \u2192 physical address. The linear address is the intermediate result after adding the segment base to the offset; it is then translated by the paging unit into a physical address.",
+    "optionExplanations": [
+      "Physical addresses directly access RAM; linear addresses are the intermediate stage before paging.",
+      "Correct. Linear address = segment_base + offset; it is the input to the page translation unit.",
+      "Compiler-generated addresses are virtual/logical addresses; linear addresses come from the segmentation unit.",
+      "Linear addresses exist in protected mode systems; in real mode there is no paging unit."
+    ]
+  },
+  {
+    "id": "v09-007",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Full address translation chain",
+    "difficulty": "hard",
+    "type": "sequence",
+    "question": "What is the complete address translation chain from a logical address to a physical address in x86 with both segmentation and paging active?",
+    "options": [
+      "Logical address \u2192 Physical address (direct)",
+      "Logical address \u2192 [Segmentation unit] \u2192 Linear address \u2192 [Paging unit] \u2192 Physical address",
+      "Virtual address \u2192 [MMU] \u2192 Physical address (one step)",
+      "Logical address \u2192 [Paging unit] \u2192 Linear address \u2192 [Segmentation] \u2192 Physical address"
+    ],
+    "correctAnswer": 1,
+    "explanation": "x86 address translation: (1) CS/DS register selects segment descriptor from GDT/LDT; (2) Segmentation unit adds segment base to offset producing a 32-bit linear address; (3) Paging unit walks the page directory and page table to translate the linear address to a physical address.",
+    "optionExplanations": [
+      "Logical to physical is never direct when both segmentation and paging are active.",
+      "Correct. The two-stage pipeline: segmentation produces linear address, then paging translates to physical address.",
+      "This simplification omits the two-stage segmentation+paging pipeline.",
+      "The order is wrong; segmentation always precedes paging in x86."
+    ]
+  },
+  {
+    "id": "v09-008",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segmentation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "How does segmentation provide memory protection between the code and data segments?",
+    "options": [
+      "By encrypting each segment with a separate key",
+      "By assigning different access rights to each segment (e.g., code segment = execute-only, data segment = read/write, stack = read/write)",
+      "By placing all segments at the same physical address",
+      "By making all segments the same size"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Each segment descriptor contains type bits specifying permitted access: a code segment can be marked execute-only or execute-read, while a data segment is read/write. The hardware enforces these access rights per memory access type.",
+    "optionExplanations": [
+      "Segmentation uses access control bits, not encryption, for protection.",
+      "Correct. Segment access rights (read/write/execute) provide hardware-enforced protection between different program sections.",
+      "Different segments map to different physical regions; placing them at the same address would defeat the purpose.",
+      "Segments have variable sizes; making them all equal size would be paging, not segmentation."
+    ]
+  },
+  {
+    "id": "v09-009",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "GDTR",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What does the GDTR (Global Descriptor Table Register) store?",
+    "options": [
+      "The current instruction pointer (EIP)",
+      "The base linear address and limit (size) of the GDT in memory",
+      "The selector value for the currently active code segment",
+      "The physical address of the top-level page directory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "GDTR is a special x86 register loaded by the LGDT instruction. It stores the 32-bit linear base address of the GDT and its 16-bit limit (size in bytes - 1). The CPU uses GDTR to locate the GDT whenever a segment register is loaded.",
+    "optionExplanations": [
+      "EIP stores the instruction pointer; GDTR stores the GDT location.",
+      "Correct. GDTR = GDT base address + GDT limit, loaded by the OS kernel using the LGDT instruction.",
+      "CS holds the code segment selector value, not GDTR.",
+      "CR3 holds the page directory base address; GDTR holds the GDT base address."
+    ]
+  },
+  {
+    "id": "v09-010",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segmentation",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "A code segment descriptor has base = 0x00000000 and limit = 0x000FFFFF (1 MB). A program loads CS with this selector and tries to execute an instruction at EIP = 0x00200000. What happens?",
+    "options": [
+      "The instruction executes normally",
+      "A General Protection Fault is raised because EIP exceeds the segment limit (0x100000)",
+      "The CPU automatically extends the segment limit to accommodate",
+      "A page fault occurs because the page is not present"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The x86 segmentation hardware checks that (segment base + offset) does not exceed (segment base + segment limit). Here, EIP = 0x200000 > limit 0x100000 (1 MB), so the hardware raises a General Protection Fault (#GP, exception 13).",
+    "optionExplanations": [
+      "Executing outside segment bounds causes a hardware protection fault.",
+      "Correct. EIP (0x200000) exceeds segment limit (0x000FFFFF), causing a General Protection Fault (#GP).",
+      "Segment limits are fixed in the descriptor; the CPU does not auto-extend them.",
+      "A page fault is triggered by the paging unit for invalid physical frames, not by segment bound violations."
+    ]
+  },
+  {
+    "id": "v09-011",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segmentation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What type of memory fragmentation does segmentation produce, and why?",
+    "options": [
+      "Internal fragmentation \u2014 because segments have fixed sizes",
+      "External fragmentation \u2014 because variable-size segments leave non-contiguous free gaps between segments in physical memory",
+      "No fragmentation \u2014 segmentation eliminates all memory waste",
+      "Page fragmentation \u2014 because segments are divided into pages"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Variable-size segments are allocated and freed at different times. Over time, freed segments leave holes of varying sizes between remaining segments. New segments may not fit in available holes even if total free memory is sufficient \u2014 classic external fragmentation.",
+    "optionExplanations": [
+      "Internal fragmentation comes from fixed-size allocations; segments are variable-size.",
+      "Correct. Variable-size segment allocation and freeing creates non-contiguous free holes \u2014 external fragmentation.",
+      "External fragmentation is an inherent weakness of segmentation.",
+      "Segments are not divided into pages unless both segmentation and paging are used."
+    ]
+  },
+  {
+    "id": "v09-012",
+    "video": 9,
+    "topic": "Segmentation",
+    "subtopic": "Segment registers",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "When the CPU executes a 'push' instruction on x86, which segment register is automatically used to form the effective address?",
+    "options": [
+      "CS (Code Segment)",
+      "DS (Data Segment)",
+      "SS (Stack Segment)",
+      "ES (Extra Segment)"
+    ],
+    "correctAnswer": 2,
+    "explanation": "The x86 architecture automatically uses SS (Stack Segment) as the implicit segment register for stack operations (push, pop, call, ret). The effective address is SS:ESP (stack segment base + stack pointer offset).",
+    "optionExplanations": [
+      "CS is used for instruction fetches (code); stack operations use SS.",
+      "DS is the default segment for data memory accesses (mov, load); stack operations use SS.",
+      "Correct. SS (Stack Segment) is implicitly used for all stack operations with ESP as the offset register.",
+      "ES is an extra data segment used in string operations (movs, stos); stack uses SS."
+    ]
+  }
+]

@@ -1,0 +1,301 @@
+[
+  {
+    "id": "v14-001",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Fork System Call",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What does the fork() system call in xv6 create?",
+    "options": [
+      "A new thread within the same process",
+      "A complete copy of the calling process \u2014 a new child process with duplicated address space, file descriptors, and registers",
+      "A new kernel thread for background processing",
+      "A new file descriptor for a pipe"
+    ],
+    "correctAnswer": 1,
+    "explanation": "fork() creates a new process (child) that is an almost-identical copy of the parent: same virtual address space (new physical pages), same open file descriptors, same register state. The only difference is the return value: parent gets child's PID, child gets 0.",
+    "optionExplanations": [
+      "fork() creates a new process, not a thread. Threads share address space; fork gives the child its own copy.",
+      "Correct. fork() duplicates the calling process \u2014 new PCB, new address space, copied registers/files.",
+      "Kernel threads are a different mechanism; fork() creates a user-space process.",
+      "Pipes are created by pipe() system call; fork() creates processes."
+    ]
+  },
+  {
+    "id": "v14-002",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Return value mechanism (eax register)",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6's fork() implementation, what return values do the parent and child processes receive, and how is this implemented?",
+    "options": [
+      "Both parent and child receive 0",
+      "Parent receives the child's PID; child receives 0. The child's trap frame eax is set to 0 before the child runs",
+      "Parent receives 0; child receives the parent's PID",
+      "Both processes receive -1 if an error occurs"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In xv6 fork(): the child's trap frame (tf->eax) is set to 0 before the child is made RUNNABLE. When the child returns from the kernel via IRET, it finds eax=0. The parent's fork() call returns the child's PID through the normal return path.",
+    "optionExplanations": [
+      "Only the child receives 0; the parent receives the child's PID.",
+      "Correct. Parent gets child PID (normal return); child gets 0 (via tf->eax = 0 set in kernel).",
+      "The return values are reversed; parent gets child PID, child gets 0.",
+      "Both processes receiving -1 indicates a fork failure, not the normal case."
+    ]
+  },
+  {
+    "id": "v14-003",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Copy UVM (Page directory duplication)",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "When fork() calls copyuvm() in xv6, what does this function do?",
+    "options": [
+      "Copies the kernel address space to the child",
+      "Allocates new physical pages and copies the parent's user-mode page contents to the child, creating an independent copy of the parent's address space",
+      "Shares the parent's physical pages with the child using copy-on-write",
+      "Maps the parent's stack to the child using a different virtual address"
+    ],
+    "correctAnswer": 1,
+    "explanation": "copyuvm() walks the parent's page table (0 to sz), allocates new physical frames for each page using kalloc(), copies the page content using memmove(), and creates new page table entries in the child's page directory. The child gets a full independent copy of all user-mode pages.",
+    "optionExplanations": [
+      "The kernel address space mapping is set up separately; copyuvm only handles user address space.",
+      "Correct. copyuvm allocates new physical pages and copies parent's user page contents to the child.",
+      "xv6 does not implement Copy-on-Write; it eagerly copies all pages in copyuvm.",
+      "Pages are mapped at the same virtual addresses in both parent and child; only physical frames differ."
+    ]
+  },
+  {
+    "id": "v14-004",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Exit System Call",
+    "difficulty": "medium",
+    "type": "sequence",
+    "question": "When a process calls exit() in xv6, what sequence of actions occurs?",
+    "options": [
+      "Process is immediately deleted from the ptable",
+      "Process closes file descriptors, wakes up parent (if sleeping in wait()), re-parents children to init, sets state to ZOMBIE, and yields CPU to scheduler",
+      "Process sends SIGCHLD to parent and terminates",
+      "Process writes its data to disk and then frees all memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "exit() in xv6: (1) closes all open file descriptors, (2) decrements current directory inode ref, (3) acquires ptable.lock and wakes parent sleeping in wait(), (4) reparents any children to init process, (5) sets state to ZOMBIE, (6) calls sched() to yield CPU.",
+    "optionExplanations": [
+      "The PCB is not immediately deleted; it becomes ZOMBIE so the parent can retrieve the exit status via wait().",
+      "Correct. exit() performs cleanup, wakes parent, reparents children to init, sets ZOMBIE state, yields CPU.",
+      "xv6 does not use POSIX signals; it uses ZOMBIE state and wait() for parent notification.",
+      "xv6 does not write user process data to disk on exit."
+    ]
+  },
+  {
+    "id": "v14-005",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Zombie state transition",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is a Zombie process, and why does it temporarily exist?",
+    "options": [
+      "A process that has crashed due to a segmentation fault",
+      "A process that has called exit() but whose parent has not yet called wait() to collect its exit status; the PCB remains until the parent collects it",
+      "A process that consumes 100% CPU without doing useful work",
+      "A process that cannot be killed by the OS"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A Zombie process has completed execution (called exit()) but its struct proc entry is preserved in ZOMBIE state until the parent calls wait(). The PCB must persist so the parent can retrieve the child's PID and exit status.",
+    "optionExplanations": [
+      "A crashed process may become zombie if exit() is invoked during crash cleanup, but zombie specifically means cleanly exited but uncollected.",
+      "Correct. Zombie = exited process waiting for parent's wait() call to collect exit status and free PCB.",
+      "CPU-intensive processes are not zombies; zombies use no CPU \u2014 they are permanently blocked.",
+      "Zombies can be cleaned up by the parent's wait() call or by reparenting to init."
+    ]
+  },
+  {
+    "id": "v14-006",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Wait System Call",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What does the wait() system call in xv6 return?",
+    "options": [
+      "The exit code of the child process",
+      "The PID of the first zombie child found and cleaned up, or -1 if there are no child processes",
+      "The memory usage of the child process",
+      "The number of file descriptors the child had open"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6's wait() scans the ptable for ZOMBIE children of the calling process. If a zombie child is found, it frees the child's kernel stack and page directory, sets the child's state to UNUSED, and returns the child's PID. Returns -1 if the caller has no children at all.",
+    "optionExplanations": [
+      "xv6's wait() does not explicitly return exit codes; it returns the child PID (or -1).",
+      "Correct. wait() returns the PID of a collected zombie child (or -1 if no children exist).",
+      "Memory usage is not returned by wait(); it is an internal OS metric.",
+      "File descriptor counts are not returned by wait()."
+    ]
+  },
+  {
+    "id": "v14-007",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "ELF header components",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the ELF magic number, and what is its purpose in the exec() system call?",
+    "options": [
+      "0xDEADBEEF \u2014 marks corrupted executable files",
+      "0x7F followed by 'ELF' (0x7F454C46) \u2014 the first 4 bytes of every valid ELF file, validated by exec() before loading",
+      "0x55AA \u2014 the boot signature for bootable disks",
+      "0x80486 \u2014 the x86 processor identification number"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Valid ELF files begin with bytes 0x7F, 0x45 (E), 0x4C (L), 0x46 (F) \u2014 the ELF magic number. xv6's exec() reads the ELF header and verifies this magic number first; if it doesn't match, exec() returns an error without loading the file.",
+    "optionExplanations": [
+      "0xDEADBEEF is a common debug marker/canary value, not the ELF magic number.",
+      "Correct. 0x7F+'ELF' is the standard ELF magic number validated by exec() to ensure file validity.",
+      "0x55AA is the MBR boot sector signature, not the ELF file magic number.",
+      "0x80486 is not a standard magic number for ELF files."
+    ]
+  },
+  {
+    "id": "v14-008",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Exec System Call",
+    "difficulty": "hard",
+    "type": "sequence",
+    "question": "What sequence of operations does exec() perform in xv6?",
+    "options": [
+      "Reads file, allocates user stack, copies arguments, sets EIP to main()",
+      "Validates ELF magic, loads program headers into new user address space, allocates user stack, fills arguments (argv), updates trap frame (TF_EIP=entry, TF_ESP=stack top)",
+      "fork() then exec() then wait()",
+      "Frees old address space, reads new program, re-uses old page tables"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 exec(): (1) open and validate ELF header (magic number check), (2) create new page table, (3) load program segments from ELF into new pages, (4) allocate user stack (with guard page), (5) push arguments (argv, argc) onto user stack, (6) update trap frame TF_EIP to ELF entry point and TF_ESP to stack pointer, (7) free old address space, install new one.",
+    "optionExplanations": [
+      "EIP is set to the ELF entry point (from header), not hardcoded to main().",
+      "Correct. exec validates ELF, builds new address space, loads segments, sets up stack with args, updates trap frame.",
+      "fork/exec/wait is a usage pattern, not the internals of exec() itself.",
+      "Old address space is freed AFTER new one is fully set up (for error safety), not before reading the new program."
+    ]
+  },
+  {
+    "id": "v14-009",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Guard page mechanism",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the purpose of a guard page in the user stack setup during exec() in xv6?",
+    "options": [
+      "To store the process arguments (argv) array",
+      "An unmapped page below the user stack that causes a page fault if the stack grows beyond its allocated region, preventing stack overflow into heap",
+      "A special page that accelerates stack allocation",
+      "A page shared between parent and child after fork()"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 allocates a guard page (PTE_P clear, no PTE_U) immediately below the bottom of the user stack. If the stack overflows (grows too large), the next stack access hits the guard page, triggering a page fault. The kernel kills the process rather than allowing a silent overflow into heap memory.",
+    "optionExplanations": [
+      "argv is stored on the stack itself, not in a dedicated guard page.",
+      "Correct. Guard page = unmapped page below stack that triggers a page fault on stack overflow.",
+      "Guard pages are not for performance; they are a stack overflow detection mechanism.",
+      "Guard pages are specific to each process; they are not shared after fork."
+    ]
+  },
+  {
+    "id": "v14-010",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "allocproc function",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What does allocproc() in xv6 do when a new process is created?",
+    "options": [
+      "Creates a new page directory and loads the program executable",
+      "Scans the ptable for an UNUSED slot, sets it to EMBRYO, assigns a PID, allocates a kernel stack, and sets up the initial context pointer for sched()",
+      "Copies the parent's entire address space to the child",
+      "Sends a startup IPI to wake an Application Processor"
+    ],
+    "correctAnswer": 1,
+    "explanation": "allocproc(): (1) scans ptable for state==UNUSED, (2) sets state=EMBRYO and assigns the next available PID, (3) allocates a kernel stack page using kalloc(), (4) positions the trap frame pointer and initial context pointer at appropriate offsets in the kernel stack, (5) sets context->eip to forkret.",
+    "optionExplanations": [
+      "Loading the executable is exec()'s job; allocproc only allocates the PCB and kernel stack.",
+      "Correct. allocproc allocates a ptable slot, assigns PID, allocates kernel stack, and sets up initial context.",
+      "Copying address space (copyuvm) is done by fork(), not allocproc.",
+      "SIPI messages are for multiprocessor AP startup, not regular process creation."
+    ]
+  },
+  {
+    "id": "v14-011",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Init process adoption",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "If a parent process calls exit() while it has running child processes in xv6, what happens to those children?",
+    "options": [
+      "All children are immediately terminated",
+      "All children are reparented to the init process (PID 1), which will collect their exit status when they terminate",
+      "Children continue as orphans with no parent forever",
+      "Children are paused until the parent is restarted"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In xv6's exit(), before setting its own state to ZOMBIE, the exiting process iterates through the ptable and sets the parent pointer of all its children to the init process (PID 1). Init's loop continuously calls wait(), collecting zombie children.",
+    "optionExplanations": [
+      "xv6 does not kill children when the parent exits; it reparents them to init.",
+      "Correct. Orphaned processes are reparented to init (PID 1), which collects their zombies via its wait() loop.",
+      "Orphans with no parent would accumulate as zombies forever; reparenting to init prevents this.",
+      "Children continue running; the parent exiting doesn't pause them."
+    ]
+  },
+  {
+    "id": "v14-012",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "ELF header components",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What information does the ELF Program Header contain that exec() uses when loading a program?",
+    "options": [
+      "The program's exit code and return value",
+      "Virtual address (vaddr), physical address (paddr), file offset (off), file size (filesz), and memory size (memsz) for each loadable segment",
+      "The network port number for the program to listen on",
+      "The process priority and time quantum"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Each ELF program header (Phdr) describes one loadable segment and contains: type (PT_LOAD/PT_DYNAMIC), file offset (off), virtual address (vaddr), physical address (paddr), file size (filesz), and memory size (memsz). exec() uses this to know where and how to load each segment into the new address space.",
+    "optionExplanations": [
+      "Exit codes are runtime values; they are not in the ELF headers.",
+      "Correct. Program headers provide virtual address, file offset, and sizes for each loadable segment.",
+      "Network ports are not ELF header fields; they are runtime configuration.",
+      "Process priorities are OS scheduling metadata, not ELF binary format fields."
+    ]
+  },
+  {
+    "id": "v14-013",
+    "video": 14,
+    "topic": "Process Management System Calls",
+    "subtopic": "Trap frame restoration for execution",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "After exec() sets up the new user address space, what must it do to ensure the process begins executing the new program when it returns to user mode?",
+    "options": [
+      "Set the global instruction pointer to the ELF entry point",
+      "Update the trap frame on the kernel stack: set tf->eip to the ELF entry point and tf->esp to the new user stack pointer, so IRET restores them correctly",
+      "Write the program counter to the process's pgdir",
+      "Call main() directly from exec()"
+    ],
+    "correctAnswer": 1,
+    "explanation": "exec() modifies the process's trap frame (which is on the kernel stack): tf->eip = ELF entry point address, tf->esp = user stack pointer after arguments are pushed. When exec() returns to the kernel's trap handler and IRET executes, these values are restored to EIP and ESP, starting execution at the program's entry point.",
+    "optionExplanations": [
+      "The global instruction pointer (EIP) is restored from the trap frame by IRET; exec sets it in the trap frame.",
+      "Correct. exec sets tf->eip and tf->esp in the trap frame; IRET pops them to EIP/ESP when returning to user mode.",
+      "pgdir is the page directory pointer; EIP and ESP are register values stored in the trap frame.",
+      "exec() cannot call main() directly; it sets up state so IRET transfers control to the user-mode entry point."
+    ]
+  }
+]

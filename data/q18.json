@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v18-001",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Context Switching Mechanism",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is a CPU context switch?",
+    "options": [
+      "Changing the CPU from real mode to protected mode",
+      "The process by which the OS saves the complete CPU state of the currently running process and restores the CPU state of the next process to run",
+      "Copying process data from RAM to disk",
+      "Changing the operating system's scheduling algorithm"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A context switch involves: (1) saving the current process's CPU state (registers, program counter, stack pointer) into its PCB, (2) loading the next process's CPU state from its PCB into the CPU registers, making the next process appear to resume seamlessly.",
+    "optionExplanations": [
+      "Real-to-protected mode is a CPU mode change, not a process context switch.",
+      "Correct. Context switch = save current process state + load next process state.",
+      "Copying to disk is swapping/paging, not a context switch.",
+      "The scheduling algorithm is a policy decision; context switch is the mechanism of switching processes."
+    ]
+  },
+  {
+    "id": "v18-002",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Timer Interrupts",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "How do timer interrupts enable preemptive multitasking in xv6?",
+    "options": [
+      "Timer interrupts are sent to user processes to let them voluntarily stop",
+      "The hardware timer fires every ~10ms, causing an interrupt. The timer interrupt handler calls yield(), which sets the process state to RUNNABLE and calls the scheduler to switch to another process",
+      "Timer interrupts reset the CPU clock to allow faster execution",
+      "Timer interrupts disable all other interrupts to ensure fairness"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Hardware timer (IRQ 0) fires periodically. The timer interrupt handler in trap.c calls yield() for the current process. yield() acquires ptable.lock, sets state=RUNNABLE, and calls sched(), which switches execution to the scheduler and allows another RUNNABLE process to run.",
+    "optionExplanations": [
+      "Preemptive means the OS forcibly removes CPU; the process is not notified or asked.",
+      "Correct. Hardware timer \u2192 IRQ 0 \u2192 trap handler \u2192 yield() \u2192 sched() \u2192 next RUNNABLE process.",
+      "Timer interrupts don't change CPU clock speed; they trigger scheduling events.",
+      "Timer interrupts initiate a process switch; they don't disable other interrupts permanently."
+    ]
+  },
+  {
+    "id": "v18-003",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Process Control Block",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What information in the PCB (struct proc in xv6) is specifically needed to restore a process after a context switch?",
+    "options": [
+      "The process's source code and compile-time constants",
+      "The kernel context (struct context: EIP, ESP, EBP, EBX, ESI, EDI) and page directory pointer (pgdir for CR3)",
+      "The process's network socket buffers",
+      "The process's terminal emulator settings"
+    ],
+    "correctAnswer": 1,
+    "explanation": "To resume a process: (1) load CR3 with pgdir (restores virtual address space), (2) restore kernel context registers (EIP \u2192 where the process should resume in kernel code, ESP \u2192 kernel stack position, and callee-saved registers). The trap frame handles user-mode register restoration via IRET.",
+    "optionExplanations": [
+      "Source code is not needed to resume execution; compiled binary state is captured in registers.",
+      "Correct. pgdir (for CR3 reload) and kernel context struct (register state for swtch()) are needed for context switch resumption.",
+      "Network socket buffers are runtime data structures; they are not directly loaded into CPU registers.",
+      "Terminal settings are irrelevant to CPU register state restoration."
+    ]
+  },
+  {
+    "id": "v18-004",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Context switch overheads",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What are the DIRECT overheads of a context switch?",
+    "options": [
+      "Fragmentation overhead and memory compaction time",
+      "Interrupt latency + context save/restore time + scheduler execution time",
+      "Disk I/O time and network latency",
+      "Virtual memory allocation and page table creation time"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Direct context switch overhead = (1) interrupt/trap latency (CPU response to timer IRQ), (2) time to save current process's register context (pushad, save to struct context), (3) time to restore next process's context (load from struct context, popad), (4) scheduler execution time (scanning ptable for RUNNABLE process).",
+    "optionExplanations": [
+      "Fragmentation is a memory allocation overhead; it is not a context switch overhead.",
+      "Correct. Direct overheads: interrupt latency + register save/restore time + scheduler scan time.",
+      "Disk I/O and network are device latencies; context switch overheads are CPU-level.",
+      "Memory allocation costs occur during process creation; context switches deal with existing process state."
+    ]
+  },
+  {
+    "id": "v18-005",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Translation Lookaside Buffer (TLB) flush and reload",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "Why does a context switch cause a TLB flush, and what is the performance impact?",
+    "options": [
+      "TLB is flushed to save power during context switches",
+      "Loading a new CR3 (for the new process's page directory) invalidates the TLB \u2014 all previous virtual-to-physical translations become invalid; the new process must rebuild the TLB via page walks, adding memory latency",
+      "TLB flushes improve security by removing cached encryption keys",
+      "TLB flush is only triggered by process creation, not context switches"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The TLB caches recent virtual-to-physical translations for fast address resolution. When CR3 is loaded with a new process's page directory, the x86 hardware flushes the entire TLB (since all cached translations now belong to the previous process's address space). The new process must re-populate the TLB via page table walks, adding latency to the first memory accesses after the switch.",
+    "optionExplanations": [
+      "TLB flush is a correctness requirement, not a power-saving mechanism.",
+      "Correct. CR3 reload flushes TLB; new process pays the cost of TLB cold-start (page table walks for all initial accesses).",
+      "TLB doesn't cache encryption keys; it caches virtual-to-physical address mappings.",
+      "Every context switch that loads a different CR3 (different process address space) flushes the TLB."
+    ]
+  },
+  {
+    "id": "v18-006",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Cache locality loss",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the 'cache locality loss' indirect overhead of context switching?",
+    "options": [
+      "The physical CPU cache chips are removed and reinserted during context switches",
+      "After switching to a new process, the CPU caches (L1/L2/L3) contain data from the previous process; the new process generates cache misses until it warms up its working set, adding memory access latency",
+      "Context switches cause cache invalidation in all CPU caches simultaneously",
+      "Cache locality loss only occurs in systems with L3 cache"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CPU caches are populated with the previous process's data/instructions. When the new process begins executing, most memory accesses result in cache misses (cold cache) and must go to slow RAM. Performance degrades until the new process's working set is loaded into cache.",
+    "optionExplanations": [
+      "CPU caches are on-chip silicon; they are not physically removable.",
+      "Correct. After switch, new process faces cold cache with many misses until its working set warms up in L1/L2/L3.",
+      "Cache invalidation on context switch would be catastrophic; caches are not cleared, they just become temporarily irrelevant.",
+      "Cache locality loss occurs regardless of cache hierarchy level."
+    ]
+  },
+  {
+    "id": "v18-007",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Processor pipeline flush",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "Why does a context switch cause a processor pipeline flush, and why is this costly?",
+    "options": [
+      "Pipelines are flushed to detect hardware errors in the CPU",
+      "When control transfers from one process to another (especially with a branch or IRET), the CPU's instruction pipeline may contain instructions from the previous process that are now invalid, requiring the pipeline to be drained and refilled",
+      "Pipeline flushes only occur on page faults, not context switches",
+      "Modern CPUs never flush pipelines"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Modern CPUs speculatively fetch and execute instructions in a pipeline. On a context switch (IRET restoring new EIP, CR3 reload), the pipeline contents become incorrect and must be flushed. The new process must refill the pipeline with its own instructions \u2014 several cycles of latency before full throughput resumes.",
+    "optionExplanations": [
+      "Pipeline flushes are due to control flow changes, not hardware error detection.",
+      "Correct. IRET and CR3 reload invalidate pipeline state; the new process pays instruction pipeline refill latency.",
+      "Pipeline flushes occur on all control flow changes (jumps, IRET, CR3 load), not just page faults.",
+      "Modern CPUs do flush pipelines on control flow changes that cannot be speculated through."
+    ]
+  },
+  {
+    "id": "v18-008",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Scheduler context",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, the scheduler has its own execution context. Why does the scheduler need its own stack and registers?",
+    "options": [
+      "The scheduler runs as a separate user process",
+      "The scheduler runs independently of any process context \u2014 it needs its own stack because it may run when no user process is active; switching to/from it uses the same swtch() mechanism as process-to-process switches",
+      "The scheduler uses different hardware than the CPU",
+      "The scheduler is implemented in hardware, not software"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6's scheduler() runs in the context of each CPU (struct cpu has a scheduler context). When a process calls sched(), it switches to the CPU's scheduler context using swtch(). The scheduler then finds the next RUNNABLE process and switches to it. The scheduler's own stack and context are needed because it executes independently between process switches.",
+    "optionExplanations": [
+      "The scheduler is a kernel function, not a user process.",
+      "Correct. Each CPU has a scheduler context; processes swtch() to the scheduler, which then swtch() to the next process.",
+      "The scheduler uses the same CPU hardware as all processes; it just needs its own register context.",
+      "The scheduler is implemented in xv6 C code (proc.c), not in hardware."
+    ]
+  },
+  {
+    "id": "v18-009",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Process state transitions",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What triggers the transition from RUNNING to SLEEPING state in xv6?",
+    "options": [
+      "A timer interrupt forcibly preempts the process",
+      "The process calls sleep(chan, lock) waiting for an event (like I/O completion) \u2014 it voluntarily relinquishes the CPU",
+      "The process exits and becomes a zombie",
+      "The scheduler decides to suspend the process for priority reasons"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A process transitions to SLEEPING (BLOCKED) when it calls sleep() in xv6 \u2014 typically waiting for I/O (disk read/write completion), pipe data, or a lock. sleep() sets state=SLEEPING and calls sched() to switch to another process. It wakes when wakeup(chan) is called.",
+    "optionExplanations": [
+      "Timer interrupt causes RUNNING\u2192RUNNABLE (preemption), not RUNNING\u2192SLEEPING.",
+      "Correct. sleep() call = voluntary block; process waits for a specific event (chan) before returning to RUNNABLE.",
+      "Exit causes RUNNING\u2192ZOMBIE, not SLEEPING.",
+      "Basic xv6 scheduling is round-robin without priority-based suspension."
+    ]
+  },
+  {
+    "id": "v18-010",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Context switch overheads",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "A system performs 1000 context switches per second. Each switch takes 5 microseconds for direct overhead. How much total CPU time per second is spent on context switch overhead?",
+    "options": [
+      "0.5 ms (negligible)",
+      "5 ms (0.5% of CPU time)",
+      "50 ms (5% of CPU time)",
+      "5000 ms (500% \u2014 impossible)"
+    ],
+    "correctAnswer": 1,
+    "explanation": "1000 switches/sec \u00d7 5 microseconds/switch = 5000 microseconds = 5 ms per second. Since a second = 1000 ms, this represents 5/1000 = 0.5% of total CPU time spent on context switch direct overhead. At this rate it's manageable, but at 10,000 switches/sec with larger overheads it becomes significant.",
+    "optionExplanations": [
+      "0.5 ms would require 0.5 microseconds per switch (1000 \u00d7 0.5\u03bcs = 0.5ms).",
+      "Correct. 1000 \u00d7 5\u03bcs = 5,000\u03bcs = 5ms out of 1,000,000\u03bcs per second = 0.5%.",
+      "50ms would require 50 microseconds per switch.",
+      "500% is impossible; CPU time cannot exceed 100%."
+    ]
+  },
+  {
+    "id": "v18-011",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "User mode to kernel mode transition",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "When a process transitions from user mode to kernel mode for a context switch, what is the sequence of address space changes?",
+    "options": [
+      "User process address space \u2192 new user process address space (direct)",
+      "User mode (Ring 3) \u2192 timer interrupt \u2192 kernel trap handler (still in same process address space, Ring 0) \u2192 swtch() to scheduler \u2192 swtch() to next process \u2192 IRET with new CR3 \u2192 new process user mode",
+      "No address space change occurs during any context switch",
+      "The kernel creates a new address space for each transition"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The context switch path: (1) timer IRQ in user mode \u2192 trap handler (Ring 0, still same process page tables since kernel is mapped in every process), (2) yield() \u2192 sched() \u2192 swtch() to CPU scheduler context, (3) scheduler swtch() to next process's kernel context, (4) next process returns from sched() \u2192 releases lock \u2192 IRET returns to that process's user mode (with its CR3 already loaded).",
+    "optionExplanations": [
+      "The switch goes through the kernel; it's not a direct user-to-user space jump.",
+      "Correct. User \u2192 kernel trap (same CR3) \u2192 swtch to scheduler \u2192 swtch to new process (new CR3 when scheduling completes) \u2192 IRET to user.",
+      "CR3 change occurs when the scheduler loads the new process's page directory.",
+      "No new address space is created during a context switch; existing address spaces are switched."
+    ]
+  },
+  {
+    "id": "v18-012",
+    "video": 18,
+    "topic": "CPU Context Switching",
+    "subtopic": "Context switch overheads",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "Why is it important for the OS to minimize context switch frequency in high-performance server applications?",
+    "options": [
+      "More context switches always improve throughput",
+      "Excessive context switching wastes CPU time on overhead (register save/restore, TLB flushes, cache warming) rather than actual application work, reducing throughput",
+      "Context switching is free on modern hardware",
+      "High context switch frequency improves process isolation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Each context switch consumes CPU cycles for register save/restore, causes TLB flush (cold start cost), causes CPU cache eviction (warm-up cost), and flushes the instruction pipeline. At very high frequencies, these indirect costs can consume significant CPU capacity that should be used for actual computation.",
+    "optionExplanations": [
+      "Beyond a certain frequency, context switch overhead dominates and actually reduces throughput.",
+      "Correct. Context switch overhead (TLB, cache, pipeline, registers) reduces net throughput when frequency is too high.",
+      "TLB flushes, cache misses, and pipeline refills have real measurable cost.",
+      "Process isolation is maintained by the MMU page tables; it doesn't require high context switch frequency."
+    ]
+  }
+]

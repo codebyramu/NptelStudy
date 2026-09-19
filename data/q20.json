@@ -1,0 +1,301 @@
+[
+  {
+    "id": "v20-001",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Priority numbers",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In priority-based scheduling, what convention is typically used for priority numbers in OS literature?",
+    "options": [
+      "Higher number always means higher priority",
+      "Lower number means higher priority (e.g., priority 0 is highest)",
+      "All processes have equal priority (1) by default",
+      "Priority numbers correspond to process PID values"
+    ],
+    "correctAnswer": 1,
+    "explanation": "By convention in most OS texts (and many real OSes), a LOWER priority number indicates HIGHER urgency (priority 0 = highest, priority N = lowest). This is similar to 'first place' being #1. The xv6/POSIX nice value uses higher number = lower priority (nicer to others).",
+    "optionExplanations": [
+      "Higher number = lower priority in most OS conventions; the question tests awareness of this.",
+      "Correct. Lower number = higher priority by convention; priority 0 processes get CPU before priority 10.",
+      "Processes have different priorities reflecting their relative urgency.",
+      "PIDs are identity numbers; priority is a separate scheduling parameter."
+    ]
+  },
+  {
+    "id": "v20-002",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Starvation definition",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is starvation in priority-based scheduling, and what condition causes it?",
+    "options": [
+      "A process consuming all CPU, leaving no time for I/O",
+      "A low-priority process never getting CPU time because higher-priority processes continuously arrive and preempt it",
+      "The OS running out of memory for new processes",
+      "A process waiting for a mutex that is never released"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Starvation occurs when a low-priority process waits indefinitely in the ready queue because higher-priority processes are always present and selected by the scheduler first. In a busy system with constant arrivals of high-priority work, low-priority processes may never execute.",
+    "optionExplanations": [
+      "A process consuming all CPU causes starvation but is not the definition of starvation itself.",
+      "Correct. Starvation = low-priority process waits indefinitely due to perpetual arrival of higher-priority processes.",
+      "Memory exhaustion is a resource allocation problem, not CPU scheduling starvation.",
+      "Indefinite mutex waiting is a deadlock/livelock scenario, not CPU scheduling starvation."
+    ]
+  },
+  {
+    "id": "v20-003",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Aging mechanism",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the 'aging' solution to the starvation problem in priority scheduling?",
+    "options": [
+      "Terminating processes that have waited too long",
+      "Gradually increasing the priority of a process the longer it waits in the ready queue, ensuring it eventually gets CPU time",
+      "Decreasing priority of high-priority processes when they exceed their time slice",
+      "Randomly assigning priorities at each scheduling decision"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Aging: the OS periodically increases the priority of processes that have been waiting. For example, every N seconds a process's priority increases by 1 level. Eventually even the lowest-priority process reaches the highest priority and gets scheduled. After execution, its priority resets to the original value.",
+    "optionExplanations": [
+      "Terminating waiting processes destroys the processes rather than fixing the scheduling problem.",
+      "Correct. Aging = periodic priority increase for waiting processes; prevents indefinite starvation.",
+      "Decreasing high-priority process priority is one form of dynamic adjustment but doesn't specifically address aging.",
+      "Random priority assignment would not systematically prevent starvation."
+    ]
+  },
+  {
+    "id": "v20-004",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Static priority",
+    "difficulty": "easy",
+    "type": "comparison",
+    "question": "What is the difference between static and dynamic priority in CPU scheduling?",
+    "options": [
+      "Static priority is set by hardware; dynamic priority is set by the compiler",
+      "Static priority is assigned at process creation and never changes; dynamic priority changes based on process behavior (CPU usage, waiting time)",
+      "Static priority is faster; dynamic priority is more accurate",
+      "Both mean the same thing in modern OS"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Static priority: assigned once at creation (e.g., by user or system configuration) and remains fixed throughout the process lifetime. Dynamic priority: changes at runtime based on process behavior \u2014 CPU-bound processes get lower priority over time; waiting processes get higher priority (aging).",
+    "optionExplanations": [
+      "Priority is set by OS policy/administrator, not hardware or compiler.",
+      "Correct. Static = fixed at creation; dynamic = changes at runtime based on behavior.",
+      "Speed and accuracy are different concepts; static vs dynamic is about when priority changes.",
+      "Modern OS like Linux use dynamic priorities (nice + CFS virtual runtime); static is a historical/simplified model."
+    ]
+  },
+  {
+    "id": "v20-005",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Multilevel Queue Scheduling",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is Multilevel Queue Scheduling, and how does it work?",
+    "options": [
+      "A single queue with priority-ordered processes",
+      "Processes are permanently assigned to one of several queues based on their process type; each queue has its own scheduling algorithm and priority level",
+      "Processes move between queues based on their CPU usage",
+      "All queues are served in Round Robin order"
+    ],
+    "correctAnswer": 1,
+    "explanation": "MLQ: the ready queue is divided into several separate queues (e.g., System, Interactive, Batch queues). Each queue has a fixed priority level. The scheduler always serves the highest-priority non-empty queue. Within each queue, a different algorithm may apply (e.g., RR for interactive, FCFS for batch).",
+    "optionExplanations": [
+      "A single queue with ordered processes is standard priority scheduling.",
+      "Correct. MLQ = multiple permanent queues by process class, each with own scheduling policy and priority.",
+      "Moving between queues based on behavior is MLFQ (Multilevel Feedback Queue), not MLQ.",
+      "Serving all queues in RR doesn't reflect the priority hierarchy of MLQ."
+    ]
+  },
+  {
+    "id": "v20-006",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Multilevel Feedback Queue Scheduling",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What is the key advantage of Multilevel Feedback Queue (MLFQ) over static Multilevel Queue (MLQ)?",
+    "options": [
+      "MLFQ is faster to implement",
+      "MLFQ allows processes to MOVE BETWEEN queues based on their observed CPU/I/O behavior \u2014 CPU-bound processes fall to lower-priority queues; I/O-bound and new processes stay in high-priority queues",
+      "MLFQ eliminates context switching overhead",
+      "MLFQ requires no scheduler at all"
+    ],
+    "correctAnswer": 1,
+    "explanation": "MLQ classifies processes permanently; if a batch process becomes interactive, MLQ cannot adapt. MLFQ dynamically adjusts: new processes start at highest priority queue; if they use their full quantum without blocking, they are moved down to a lower-priority queue. I/O-bound processes block early and stay high-priority.",
+    "optionExplanations": [
+      "MLFQ is more complex to implement than static MLQ.",
+      "Correct. MLFQ = dynamic queue assignment based on runtime behavior; adapts to actual process characteristics.",
+      "Context switching still occurs in MLFQ; the feedback mechanism changes queue assignment, not context switch frequency.",
+      "MLFQ requires a sophisticated scheduler that monitors burst behavior and moves processes between queues."
+    ]
+  },
+  {
+    "id": "v20-007",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Dynamic priority adjustment",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "In an MLFQ with 3 queues (Q0=RR quantum 8ms, Q1=RR quantum 16ms, Q2=FCFS), a new CPU-bound process arrives. Describe its expected journey through the queues.",
+    "options": [
+      "Process stays in Q0 forever",
+      "Process starts in Q0, exhausts its 8ms quantum (doesn't block), moves to Q1, exhausts 16ms quantum, moves to Q2 (FCFS) where it runs to completion",
+      "Process immediately goes to Q2 since it is CPU-bound",
+      "Process alternates randomly between all three queues"
+    ],
+    "correctAnswer": 1,
+    "explanation": "MLFQ journey for CPU-bound process: (1) Enters Q0 (highest priority), gets 8ms quantum. (2) Uses full 8ms without I/O block \u2192 demoted to Q1. (3) Gets 16ms quantum in Q1, uses it fully \u2192 demoted to Q2. (4) In Q2 (FCFS/longest quantum), runs to completion. CPU-bound processes naturally migrate to the lowest-priority long-quantum queues.",
+    "optionExplanations": [
+      "If it stayed in Q0 forever, it would starve other processes; MLFQ specifically demotes CPU-bound processes.",
+      "Correct. CPU-bound process uses full quantum each time \u2192 stepwise demotion from Q0\u2192Q1\u2192Q2.",
+      "New processes always start at the highest priority queue (Q0) in MLFQ regardless of type.",
+      "Queue migration in MLFQ is deterministic based on quantum exhaustion, not random."
+    ]
+  },
+  {
+    "id": "v20-008",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Malicious process gaming",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "How can a malicious process 'game' the MLFQ scheduler to stay at a high-priority queue indefinitely?",
+    "options": [
+      "By requesting more memory than needed",
+      "By performing a voluntarily I/O operation just before its quantum expires, thus never exhausting the quantum and never being demoted to a lower queue",
+      "By using a high nice value",
+      "By creating many child processes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In basic MLFQ, a process is only demoted if it USES UP its full quantum. A gaming process performs a dummy I/O (or sleep) just before the timer fires, voluntarily blocking before quantum exhaustion. This keeps it in the high-priority queue, gaining CPU preference over legitimately I/O-bound processes.",
+    "optionExplanations": [
+      "Memory requests don't affect scheduling queue placement in MLFQ.",
+      "Correct. Gaming MLFQ: issue I/O just before quantum expires \u2192 not demoted \u2192 stays high priority indefinitely.",
+      "Nice value affects priority level; gaming involves manipulating the quantum exhaustion condition.",
+      "Child processes are a separate resource; they don't prevent queue demotion of the parent."
+    ]
+  },
+  {
+    "id": "v20-009",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Starvation and Aging",
+    "difficulty": "medium",
+    "type": "assertion",
+    "question": "Statement I: In a pure priority scheduler without aging, a low-priority batch job can wait indefinitely.\nStatement II: Aging solves this by periodically boosting the priority of long-waiting processes so they eventually get scheduled.",
+    "options": [
+      "Statement I is true; Statement II is false",
+      "Statement I is false; Statement II is true",
+      "Both statements are true, and Statement II describes the correct solution to Statement I",
+      "Both statements are false"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Pure priority scheduling without aging can cause indefinite starvation of low-priority processes. Aging is the standard solution: after waiting W time units, a process's priority is increased by 1 level. Eventually the process reaches maximum priority and gets scheduled.",
+    "optionExplanations": [
+      "Both statements are true and Statement II correctly addresses the problem raised in Statement I.",
+      "Both statements are true; Statement I is also correct.",
+      "Correct. Starvation (I) is a real problem; aging (II) is the standard solution.",
+      "Both statements are factually accurate descriptions of priority scheduling issues and solutions."
+    ]
+  },
+  {
+    "id": "v20-010",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Ready queue selection",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In a preemptive priority scheduler, when does the scheduler run the higher-priority process?",
+    "options": [
+      "Only when the current process voluntarily yields",
+      "Immediately when a higher-priority process becomes RUNNABLE \u2014 it preempts the currently running lower-priority process",
+      "Only after the current process completes its time quantum",
+      "Priority changes only take effect at the next scheduling cycle"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In preemptive priority scheduling, when a higher-priority process becomes RUNNABLE (due to I/O completion, creation, or unblocking), the scheduler immediately preempts the currently running lower-priority process and switches to the higher-priority one.",
+    "optionExplanations": [
+      "Waiting for voluntary yield is non-preemptive behavior; preemptive priority acts immediately.",
+      "Correct. Preemptive priority = new high-priority RUNNABLE process immediately preempts lower-priority running process.",
+      "Quantum expiry triggers preemption in RR; priority preemption triggers on priority change events.",
+      "Immediate preemption on priority change is the defining characteristic of preemptive priority scheduling."
+    ]
+  },
+  {
+    "id": "v20-011",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Context switch implications",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "Why do higher-priority I/O-bound processes tend to get more CPU time per unit time than CPU-bound processes in MLFQ?",
+    "options": [
+      "Because I/O-bound processes are defined to have fixed high priority in MLFQ",
+      "I/O-bound processes block frequently (short CPU bursts), releasing the CPU quickly; they never exhaust their quantum and remain in high-priority queues, while CPU-bound processes are demoted for exhausting their quanta",
+      "I/O-bound processes run faster on the CPU",
+      "Because MLFQ uses a different scheduler for I/O operations"
+    ],
+    "correctAnswer": 1,
+    "explanation": "I/O-bound processes use the CPU briefly (short burst), then block for I/O. They never exhaust their quantum \u2192 never demoted \u2192 stay in high-priority queues. CPU-bound processes use full quanta \u2192 are continuously demoted \u2192 end up in low-priority queues. MLFQ naturally rewards good CPU sharing behavior.",
+    "optionExplanations": [
+      "MLFQ doesn't explicitly track process type; it infers behavior from quantum usage patterns.",
+      "Correct. I/O-bound stays high-priority (never exhausts quantum); CPU-bound gets demoted (always exhausts quantum).",
+      "I/O-bound processes actually perform fewer instructions per scheduling slot; the advantage is queue placement.",
+      "MLFQ uses the same CPU scheduler for all process types; the distinction is behavioral."
+    ]
+  },
+  {
+    "id": "v20-012",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Multilevel Queue Scheduling",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the main limitation of Multilevel Queue (MLQ) scheduling without feedback?",
+    "options": [
+      "MLQ requires too much memory",
+      "Processes are permanently assigned to a queue; if a process's behavior changes (e.g., a batch process becomes interactive), it cannot move to a more appropriate queue",
+      "MLQ cannot support more than 3 priority levels",
+      "MLQ requires special hardware support"
+    ],
+    "correctAnswer": 1,
+    "explanation": "MLQ permanently classifies processes at creation time. A process classified as 'batch' stays in the batch queue forever, even if it begins performing interactive work. This inflexibility wastes priority opportunities. MLFQ solves this by allowing queue migration based on observed behavior.",
+    "optionExplanations": [
+      "MLQ memory requirements are proportional to the number of queues; memory is not the main limitation.",
+      "Correct. Static queue assignment is MLQ's key limitation; behavior changes cannot trigger re-classification.",
+      "MLQ can support any number of priority levels; the limitation is the static assignment policy.",
+      "MLQ is implemented purely in OS software; no special hardware is required."
+    ]
+  },
+  {
+    "id": "v20-013",
+    "video": 20,
+    "topic": "Priority Based Scheduling",
+    "subtopic": "Dynamic priority adjustment",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In Linux's Completely Fair Scheduler (CFS), what mechanism prevents starvation and implements dynamic priority?",
+    "options": [
+      "Fixed time slices assigned to each priority level",
+      "Virtual runtime \u2014 the scheduler always runs the process with the smallest virtual runtime; processes that haven't run accumulate virtual runtime debt, ensuring all processes get fair CPU time proportional to their weight",
+      "Random process selection every scheduling quantum",
+      "All processes get equal absolute CPU time regardless of priority"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CFS uses virtual runtime (vruntime) to track how much CPU time each process has received. The scheduler always picks the process with minimum vruntime. Lower-priority processes have higher vruntime increment per real-time unit, so they run less frequently. This ensures proportional fairness without starvation.",
+    "optionExplanations": [
+      "Fixed time slices are Round Robin; CFS uses variable slices based on number of runnable tasks.",
+      "Correct. CFS vruntime ensures proportional fairness \u2014 minimum vruntime process always runs next; no starvation.",
+      "Random selection does not provide fairness or prevent starvation systematically.",
+      "Equal absolute time ignores priority; CFS provides proportional (weighted) fairness, not equal time."
+    ]
+  }
+]

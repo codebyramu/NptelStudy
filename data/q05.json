@@ -1,0 +1,301 @@
+[
+  {
+    "id": "v05-001",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Multiprogramming",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is multiprogramming in the context of CPU resource management?",
+    "options": [
+      "Running a single program with multiple CPUs",
+      "Keeping multiple programs in memory simultaneously so the CPU switches to another when one is waiting for I/O",
+      "Writing programs in multiple programming languages",
+      "Running programs on multiple monitors simultaneously"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Multiprogramming keeps multiple programs in RAM simultaneously. When one program blocks waiting for I/O (disk, network), the CPU switches to run another, maximizing CPU utilization.",
+    "optionExplanations": [
+      "Using multiple CPUs is multiprocessing, not multiprogramming.",
+      "Correct. Multiprogramming overlaps CPU use of one program with I/O waits of another.",
+      "Using multiple languages is a software engineering decision, not an OS concept.",
+      "Multi-monitor setup is a display configuration, not a CPU scheduling strategy."
+    ]
+  },
+  {
+    "id": "v05-002",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Race condition",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "Two threads both execute: 'counter++;' concurrently without synchronization. The counter starts at 5. What is the problem with this code?",
+    "options": [
+      "The code will always produce the wrong result because increment is not atomic",
+      "The code is valid because each thread has its own copy of counter",
+      "The code will crash with a segmentation fault",
+      "The compiler will automatically make the increment atomic"
+    ],
+    "correctAnswer": 0,
+    "explanation": "counter++ compiles to read-modify-write: LOAD counter, ADD 1, STORE counter. If both threads execute LOAD before either STORE, both read 5, both write 6, and one increment is lost. This is a race condition.",
+    "optionExplanations": [
+      "Correct. counter++ is not atomic; concurrent LOAD-ADD-STORE creates a race condition where an update can be lost.",
+      "Threads share the same memory space (and counter variable) in a process; there is no automatic per-thread copy.",
+      "A race condition produces incorrect results, not necessarily a crash.",
+      "Compilers do not automatically add atomic synchronization; it must be explicitly programmed."
+    ]
+  },
+  {
+    "id": "v05-003",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Synchronization",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the purpose of a locking mechanism (mutex) in concurrent programming?",
+    "options": [
+      "To increase the speed of memory allocation",
+      "To ensure mutual exclusion \u2014 only one thread can access a critical section at a time",
+      "To prevent the CPU scheduler from running any other process",
+      "To duplicate shared data across all threads"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A mutex (mutual exclusion lock) ensures that only one thread can execute a critical section (code that accesses shared resources) at a time, preventing race conditions.",
+    "optionExplanations": [
+      "Locks add overhead; they do not speed up memory allocation.",
+      "Correct. Mutexes enforce mutual exclusion, preventing concurrent access to shared critical sections.",
+      "Locks prevent concurrent access to the critical section, but the scheduler can still run other processes.",
+      "Locks control access to shared data; they do not duplicate it."
+    ]
+  },
+  {
+    "id": "v05-004",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Multitasking/Time-sharing",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is a 'time slice' (time quantum) in a time-sharing OS?",
+    "options": [
+      "The total time a process runs from start to finish",
+      "The maximum duration a process is allowed to run on the CPU before being preempted by the scheduler",
+      "The time required to load a process from disk into RAM",
+      "The delay caused by context switching overhead"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A time slice (quantum) is the fixed maximum CPU time given to each process per scheduling turn. When the timer expires, the scheduler preempts the running process and switches to the next in the ready queue.",
+    "optionExplanations": [
+      "Total execution time is the process lifetime, not a time quantum.",
+      "Correct. The time quantum limits each process's CPU burst before preemption.",
+      "Loading a process from disk is swapping; time slices control already-loaded process execution.",
+      "Context switch overhead is a cost, not the definition of a time slice."
+    ]
+  },
+  {
+    "id": "v05-005",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Preemption",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "What is preemption in CPU scheduling, and what triggers it?",
+    "options": [
+      "Voluntarily yielding the CPU when a process calls sleep()",
+      "Forcibly removing the CPU from a running process when its time slice expires or a higher-priority process becomes ready",
+      "Halting the CPU to save power in idle mode",
+      "Switching to kernel mode to handle a page fault"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Preemption is the OS forcibly removing the CPU from a running process. It is triggered either by a timer interrupt (time slice exhaustion) or by a higher-priority process becoming runnable.",
+    "optionExplanations": [
+      "Voluntary yielding is cooperative scheduling, not preemption.",
+      "Correct. Preemption is forced CPU removal triggered by timer interrupts or priority changes.",
+      "Halting for power saving is CPU halt mode (HLT instruction), not process preemption.",
+      "Page fault handling is a memory management event; while it involves a kernel switch, it is not the definition of preemption."
+    ]
+  },
+  {
+    "id": "v05-006",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Isolation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the purpose of user-kernel isolation (Ring protection) in x86 architecture?",
+    "options": [
+      "To allow user applications to directly modify OS kernel data structures",
+      "To prevent user processes from executing privileged hardware instructions or accessing kernel memory without going through controlled system calls",
+      "To make all processes run at the same execution speed",
+      "To enable hardware devices to communicate directly with user applications"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Ring protection prevents user-mode code from executing privileged CPU instructions (e.g., HLT, LGDT, port I/O) and from accessing kernel-only memory regions, ensuring OS integrity and process isolation.",
+    "optionExplanations": [
+      "User applications deliberately cannot modify OS kernel data directly \u2014 that would violate isolation.",
+      "Correct. Ring 0/3 separation forces user programs through system calls, preventing unauthorized hardware access.",
+      "Ring protection is about privilege, not execution speed.",
+      "Device-to-user communication is mediated by kernel device drivers, not direct access."
+    ]
+  },
+  {
+    "id": "v05-007",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Multiprocessor systems",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the difference between multiprogramming and multiprocessing?",
+    "options": [
+      "Multiprogramming uses multiple CPUs; multiprocessing uses a single CPU with time slicing",
+      "Multiprogramming interleaves multiple programs on ONE CPU; multiprocessing runs programs SIMULTANEOUSLY on MULTIPLE CPUs",
+      "Both terms refer to the exact same concept",
+      "Multiprocessing requires virtual memory; multiprogramming does not"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Multiprogramming overlaps I/O waits with CPU computation on a single CPU. Multiprocessing involves multiple physical CPU cores executing different processes genuinely simultaneously in parallel.",
+    "optionExplanations": [
+      "This reverses the definitions of multiprogramming and multiprocessing.",
+      "Correct. Multiprogramming = single CPU interleaving; multiprocessing = multiple CPUs running in parallel.",
+      "The two terms describe fundamentally different hardware and software configurations.",
+      "Both can use virtual memory; the distinction is about single vs multiple CPUs."
+    ]
+  },
+  {
+    "id": "v05-008",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Scheduler",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the primary responsibility of the OS Scheduler?",
+    "options": [
+      "Scheduling disk defragmentation operations",
+      "Deciding which process gets the CPU next and for how long",
+      "Managing network packet scheduling",
+      "Allocating virtual memory pages to processes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The CPU scheduler selects which process from the ready queue runs next on the CPU and determines its time slice duration, implementing the chosen scheduling policy (FCFS, Round Robin, Priority, etc.).",
+    "optionExplanations": [
+      "Disk defragmentation is a file system utility, not the CPU scheduler.",
+      "Correct. The scheduler decides process-to-CPU assignment and manages time allocation.",
+      "Network packet scheduling is handled by the network stack's QoS module, not the process scheduler.",
+      "Memory page allocation is the Virtual Memory Manager's responsibility."
+    ]
+  },
+  {
+    "id": "v05-009",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Security",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is an Access Control Matrix in the context of OS security?",
+    "options": [
+      "A hardware circuit that validates CPU instructions",
+      "A data structure that specifies which subjects (users/processes) have which permissions on which objects (files/resources)",
+      "A network firewall rule table",
+      "A RAM allocation bitmap for free memory tracking"
+    ],
+    "correctAnswer": 1,
+    "explanation": "An Access Control Matrix is a conceptual model (and its practical implementations: ACLs, capabilities) that defines, for each combination of subject (user/process) and object (file/device/memory), what operations (read/write/execute) are permitted.",
+    "optionExplanations": [
+      "Hardware instruction validation is done by CPU privilege rings, not an access control matrix.",
+      "Correct. Access control matrix maps subjects x objects x permissions to define security policies.",
+      "Firewalls implement network-level access control, not the general OS access control matrix.",
+      "Memory allocation bitmaps are used by the memory manager, not the security access control matrix."
+    ]
+  },
+  {
+    "id": "v05-010",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Race condition",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "Process A reads shared_flag=0. Before A can set shared_flag=1, it is preempted. Process B runs, reads shared_flag=0, and sets it to 1. A resumes and also sets shared_flag=1. What is the bug called, and what is its consequence here?",
+    "options": [
+      "Memory leak \u2014 shared_flag is never freed",
+      "Race condition \u2014 two processes believe they have exclusive access to the critical section",
+      "Stack overflow \u2014 function call depth exceeded",
+      "Page fault \u2014 shared_flag is not in physical memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "This is a classic race condition (specifically a TOCTOU \u2014 Time Of Check To Time Of Use bug). Both processes passed the flag check when it was 0, and both entered the critical section. This violates mutual exclusion.",
+    "optionExplanations": [
+      "Memory leaks involve unreleased heap allocations; this bug is about concurrent access.",
+      "Correct. This is a race condition (TOCTOU) \u2014 both processes believe they have exclusive access, violating mutual exclusion.",
+      "Stack overflow results from deep/infinite recursion, unrelated to flag checking.",
+      "Page faults occur when accessed pages are not in physical RAM; this is a concurrency bug."
+    ]
+  },
+  {
+    "id": "v05-011",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Symmetrical multi-threading",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What is Simultaneous Multi-Threading (SMT / Hyperthreading), and what OS illusion does it create?",
+    "options": [
+      "An OS software technique to run 2 processes on 1 CPU core without context switching",
+      "A CPU hardware feature where one physical core maintains 2 sets of architectural registers, appearing to the OS as 2 logical CPUs",
+      "A network protocol for thread synchronization across machines",
+      "A compiler optimization that unrolls loops for parallel execution"
+    ],
+    "correctAnswer": 1,
+    "explanation": "SMT (Intel Hyperthreading) is a CPU hardware feature where each physical core exposes two hardware thread contexts (register sets) to the OS. The OS sees 2 logical CPUs per physical core and can schedule two threads to share one core's execution units simultaneously.",
+    "optionExplanations": [
+      "SMT is a hardware feature, not an OS software technique.",
+      "Correct. SMT duplicates architectural state (registers) so the OS sees multiple logical CPUs per physical core.",
+      "SMT is a CPU microarchitecture feature, not a networking protocol.",
+      "Compiler loop unrolling is a software optimization, not hardware SMT."
+    ]
+  },
+  {
+    "id": "v05-012",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Isolation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What happens if a user process attempts to execute the privileged HLT instruction (halt CPU) on an x86 processor?",
+    "options": [
+      "The CPU halts and the system shuts down cleanly",
+      "The processor executes HLT and all other processes are suspended",
+      "A General Protection Fault exception is raised, the OS terminates the process",
+      "The instruction is silently ignored with no effect"
+    ],
+    "correctAnswer": 2,
+    "explanation": "HLT is a Ring 0 privileged instruction. If a Ring 3 (user mode) program executes HLT, the x86 hardware raises a General Protection Fault (#GP), which the OS trap handler catches and typically terminates the offending process.",
+    "optionExplanations": [
+      "Only Ring 0 code can successfully execute HLT without triggering a fault.",
+      "A user-mode HLT triggers a fault, not a system halt.",
+      "Correct. Ring 3 execution of a privileged instruction causes a General Protection Fault, leading to process termination.",
+      "x86 hardware enforces ring checks; privileged instructions from Ring 3 are not silently ignored."
+    ]
+  },
+  {
+    "id": "v05-013",
+    "video": 5,
+    "topic": "CPU Resource Management",
+    "subtopic": "Scheduler",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the 'fairness' criterion in CPU scheduling?",
+    "options": [
+      "All processes must run at the same clock frequency",
+      "Every process should receive a reasonable share of CPU time and no process should wait indefinitely",
+      "High-priority processes receive all CPU time while low-priority processes receive none",
+      "Only real-time processes are guaranteed CPU time"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Fairness ensures that all processes receive equitable CPU time and that no process starves indefinitely. Starvation (a process never getting CPU time) violates the fairness criterion.",
+    "optionExplanations": [
+      "Clock frequency is a hardware property, not a scheduling criterion.",
+      "Correct. Fairness = no process starves; all receive a reasonable, equitable share of CPU.",
+      "Giving all CPU to high-priority processes causes starvation in lower-priority processes \u2014 violating fairness.",
+      "Fairness applies to all processes, not just real-time ones."
+    ]
+  }
+]

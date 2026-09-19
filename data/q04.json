@@ -1,0 +1,347 @@
+[
+  {
+    "id": "v04-001",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Process definition",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "Which of the following best defines a 'process' in operating systems terminology?",
+    "options": [
+      "A source code file stored on disk",
+      "A program actively loaded and executing in RAM",
+      "A hardware interrupt handler",
+      "A file system directory entry"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A process is a program in execution \u2014 it includes the program code (text), data, heap, stack, and the current state (registers, PC) of the running program loaded into RAM.",
+    "optionExplanations": [
+      "A source code file on disk is a passive program, not a process.",
+      "Correct. A process is a program actively executing in memory with its own state.",
+      "Interrupt handlers are kernel routines, not user-level processes.",
+      "A directory entry is a file system concept, not a process."
+    ]
+  },
+  {
+    "id": "v04-002",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Process sections",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Which section of a process memory map stores local variables and function call frames?",
+    "options": [
+      "Text section",
+      "Data section",
+      "Heap section",
+      "Stack section"
+    ],
+    "correctAnswer": 3,
+    "explanation": "The Stack section stores local variables, function parameters, and return addresses. It grows and shrinks dynamically as functions are called and return.",
+    "optionExplanations": [
+      "The Text section stores the compiled executable machine instructions (read-only).",
+      "The Data section stores global and static variables (initialized and uninitialized BSS).",
+      "The Heap stores dynamically allocated memory (malloc/new); it grows upward.",
+      "Correct. The Stack stores local variables, function frames, and return addresses; it grows downward."
+    ]
+  },
+  {
+    "id": "v04-003",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Process sections",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "What is the difference between the initialized data section and the BSS (Block Started by Symbol) section?",
+    "options": [
+      "They store the same type of data but in different physical memory chips",
+      "Initialized data contains global variables with explicit initial values; BSS contains uninitialized or zero-initialized global/static variables",
+      "Initialized data is code; BSS is heap memory",
+      "Initialized data is in kernel space; BSS is in user space"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The Data section holds global/static variables with explicit initial values (stored in the executable). BSS holds global/static variables declared without initialization (set to zero by the OS loader at startup).",
+    "optionExplanations": [
+      "Both reside in the same physical RAM; the distinction is about initialization.",
+      "Correct. Initialized data has explicit values in the binary; BSS is zeroed by the loader.",
+      "Neither is code (that is the Text section) or heap.",
+      "Both sections reside in user address space by default."
+    ]
+  },
+  {
+    "id": "v04-004",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "System Calls",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the purpose of a system call?",
+    "options": [
+      "To call a function within the same user process",
+      "To request a privileged kernel service from user mode",
+      "To allocate virtual memory within the heap",
+      "To compile C source code at runtime"
+    ],
+    "correctAnswer": 1,
+    "explanation": "System calls are the mechanism by which user-mode programs request kernel-mode services (e.g., file I/O, process creation, network communication) without having kernel privileges themselves.",
+    "optionExplanations": [
+      "Calling a function within the same process is a regular function call, not a system call.",
+      "Correct. System calls allow user programs to request privileged OS services.",
+      "Heap allocation (malloc) may ultimately use system calls (brk/mmap), but malloc itself is a library call.",
+      "Compilation is done by the compiler at build time, not at runtime via system calls."
+    ]
+  },
+  {
+    "id": "v04-005",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "User mode to kernel mode transition",
+    "difficulty": "medium",
+    "type": "sequence",
+    "question": "When a user program executes a system call, what is the correct sequence of events?",
+    "options": [
+      "Trap instruction \u2192 Ring 0 switch \u2192 Trap handler executes \u2192 IRET returns to Ring 3",
+      "Ring 3 \u2192 function call \u2192 kernel modifies registers \u2192 return",
+      "User calls malloc \u2192 OS installs paging \u2192 user continues",
+      "Hardware DMA \u2192 kernel buffer \u2192 user reads data"
+    ],
+    "correctAnswer": 0,
+    "explanation": "A system call uses a software trap instruction (INT or SYSCALL) to switch CPU from Ring 3 (user) to Ring 0 (kernel). The kernel trap handler runs the requested service, then IRET restores user mode.",
+    "optionExplanations": [
+      "Correct. Trap \u2192 Ring 0 switch \u2192 kernel handler \u2192 IRET \u2192 Ring 3 is the standard system call mechanism.",
+      "A regular function call does not switch privilege levels.",
+      "malloc is a library call that may internally invoke brk, but the trap mechanism is the actual mode switch.",
+      "DMA describes a hardware transfer mechanism, not the system call sequence."
+    ]
+  },
+  {
+    "id": "v04-006",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Monolithic kernel",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "What is a key advantage of a Monolithic Kernel over a Microkernel?",
+    "options": [
+      "Better security due to smaller attack surface",
+      "Higher performance because all kernel services run in Ring 0 with direct function calls instead of IPC messages",
+      "Easier to debug individual components",
+      "Automatic hot-plugging of kernel modules"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In a monolithic kernel, all OS services (filesystem, drivers, networking, scheduling) run in kernel space (Ring 0). Communication between them is via direct function calls, making it faster than microkernel IPCs.",
+    "optionExplanations": [
+      "Microkernels have a smaller attack surface; monolithic kernels are larger and potentially less secure.",
+      "Correct. Direct function calls in Ring 0 avoid the overhead of inter-process communication (IPC) used by microkernels.",
+      "Monolithic kernels are harder to debug because a bug in any module can crash the entire system.",
+      "Hot-plugging modules is a feature of loadable kernel modules, not inherent to monolithic vs microkernel."
+    ]
+  },
+  {
+    "id": "v04-007",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Microkernel",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In a Microkernel OS design, which services typically run outside the kernel in user space?",
+    "options": [
+      "CPU interrupt handlers and memory allocator",
+      "Device drivers, file systems, and network stacks",
+      "Page fault handlers and scheduler",
+      "System call dispatch table and hardware timers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Microkernels run only the minimal essential services in kernel space (IPC, basic memory management, scheduling). Everything else \u2014 device drivers, file systems, protocol stacks \u2014 runs as user-space server processes.",
+    "optionExplanations": [
+      "CPU interrupt handlers and memory allocators are core kernel functions that remain in the microkernel.",
+      "Correct. Device drivers, file systems, and network stacks are moved to user-space servers in microkernel design.",
+      "Page fault handlers and the scheduler are minimal kernel services that stay in the microkernel.",
+      "System call dispatch and hardware timer management are kernel-level mechanisms."
+    ]
+  },
+  {
+    "id": "v04-008",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Memory Map",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In a process virtual address space, why does the kernel space occupy the upper portion while user space occupies the lower portion?",
+    "options": [
+      "Because RAM chips physically store kernel data at higher addresses",
+      "To protect kernel memory from user process access using MMU page table protection bits",
+      "Because the stack grows upward into the kernel region",
+      "To allow user processes to call kernel functions directly"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The kernel occupies the upper virtual address range, and the MMU's page table permission bits mark those pages as kernel-only. Any user-mode access to that region causes a page fault/protection fault.",
+    "optionExplanations": [
+      "Physical RAM layout is independent of virtual address space partitioning.",
+      "Correct. MMU page protection bits prevent user processes from accessing kernel virtual address regions.",
+      "The stack grows downward (toward lower addresses) and stays within user address space.",
+      "User processes cannot directly call kernel functions \u2014 they must use system calls."
+    ]
+  },
+  {
+    "id": "v04-009",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Trap instruction",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "In xv6, when a user process invokes a system call, it executes 'int 0x40'. What does this instruction precisely do?",
+    "options": [
+      "Reads byte 0x40 from I/O port 40h",
+      "Calls a library function at address 0x40",
+      "Triggers software interrupt vector 64, causing the CPU to push state onto the kernel stack and jump to the IDT handler for vector 64",
+      "Sets the interrupt flag bit in EFLAGS register"
+    ],
+    "correctAnswer": 2,
+    "explanation": "'int N' is the x86 software interrupt instruction. It pushes EFLAGS, CS, and EIP onto the (kernel) stack, looks up vector N (0x40 = 64) in the IDT, and jumps to the registered system call handler at Ring 0.",
+    "optionExplanations": [
+      "'in' is the port I/O instruction; 'int' is the software interrupt instruction.",
+      "int 0x40 does not call a library function; it triggers a privilege-switching trap.",
+      "Correct. 'int 0x40' triggers IDT vector 64, pushing processor state and invoking the kernel trap handler at Ring 0.",
+      "STI/CLI instructions control the interrupt flag; 'int N' triggers a specific software interrupt."
+    ]
+  },
+  {
+    "id": "v04-010",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "OS Structures",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the role of device drivers in the OS structure?",
+    "options": [
+      "They provide mathematical libraries for user applications",
+      "They translate kernel I/O requests into hardware-specific commands for each device type",
+      "They manage user authentication and passwords",
+      "They compile kernel source code into binary"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Device drivers are kernel modules that translate generic kernel I/O requests (read/write) into the specific hardware protocols and register sequences required by each particular device controller.",
+    "optionExplanations": [
+      "Mathematical libraries are user-space code (e.g., libm), not device drivers.",
+      "Correct. Device drivers translate abstract kernel requests into hardware-specific device register operations.",
+      "User authentication is typically managed by OS security services, not device drivers.",
+      "Compilation is a build-time tool activity, not a kernel device driver function."
+    ]
+  },
+  {
+    "id": "v04-011",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Process sections",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "Which process section dynamically grows when a program calls malloc() to allocate memory?",
+    "options": [
+      "Text section",
+      "Stack section",
+      "Data section",
+      "Heap section"
+    ],
+    "correctAnswer": 3,
+    "explanation": "The Heap is the region of process memory used for dynamic memory allocation (malloc, calloc, new). It grows toward higher addresses as more memory is allocated.",
+    "optionExplanations": [
+      "The Text section contains read-only executable code; it does not grow at runtime.",
+      "The Stack stores function call frames and grows downward; malloc uses the Heap.",
+      "The Data section stores global/static variables initialized at compile time.",
+      "Correct. The Heap grows dynamically as malloc() allocates new memory blocks."
+    ]
+  },
+  {
+    "id": "v04-012",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Library calls vs system calls",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "How does a library call like printf() differ from a system call like write()?",
+    "options": [
+      "printf() executes at Ring 0 while write() executes at Ring 3",
+      "printf() is a user-space function that formats data and internally calls write(), which triggers a kernel mode switch via a trap",
+      "printf() directly writes to hardware; write() is a software emulation",
+      "Both execute entirely in kernel space with equal privilege levels"
+    ],
+    "correctAnswer": 1,
+    "explanation": "printf() is a C standard library function (libc) that formats the output string and then calls the write() system call to actually send data to the file descriptor. write() triggers the trap instruction to enter kernel mode.",
+    "optionExplanations": [
+      "printf() executes entirely in user space (Ring 3); it's write() that switches to Ring 0 via trap.",
+      "Correct. printf() formats in user space, then calls write() which uses a trap to enter kernel mode.",
+      "printf() does not write directly to hardware; it goes through the OS kernel via write().",
+      "printf() and standard library functions run entirely in user space (Ring 3)."
+    ]
+  },
+  {
+    "id": "v04-013",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Process state information",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What information is stored as 'process state' that allows the OS to resume a process after it has been preempted?",
+    "options": [
+      "Only the program counter (EIP)",
+      "All CPU register values (EIP, ESP, EFLAGS, general-purpose registers) and memory mapping information",
+      "Only the stack pointer",
+      "The source code of the program"
+    ],
+    "correctAnswer": 1,
+    "explanation": "To resume a preempted process, the OS must restore the entire CPU state: all general-purpose registers, the program counter (EIP), stack pointer (ESP), EFLAGS, and the virtual memory mapping (page tables).",
+    "optionExplanations": [
+      "EIP alone is insufficient; all register states and memory context must be saved.",
+      "Correct. The full CPU register set and memory context constitute the process state needed for resumption.",
+      "ESP alone is insufficient; all registers and memory mapping must be saved.",
+      "Source code is not needed to resume execution; the compiled machine code and runtime state are what matter."
+    ]
+  },
+  {
+    "id": "v04-014",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Monolithic kernel",
+    "difficulty": "hard",
+    "type": "understanding",
+    "question": "What is the primary disadvantage of a Monolithic Kernel compared to a Microkernel?",
+    "options": [
+      "Lower performance due to IPC overhead",
+      "A bug in any kernel module (e.g., a faulty device driver) can crash the entire kernel",
+      "Inability to load new device drivers",
+      "Lack of support for multiprocessing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In a monolithic kernel, all services run in the same privilege space. A bug in a device driver, filesystem module, or network stack can corrupt kernel memory and crash the entire system (kernel panic).",
+    "optionExplanations": [
+      "Monolithic kernels are faster because they avoid IPC overhead \u2014 it's microkernels that have IPC overhead.",
+      "Correct. A single buggy module in the monolithic kernel address space can crash the entire system.",
+      "Linux (a monolithic kernel) supports dynamically loadable kernel modules via insmod/modprobe.",
+      "Monolithic kernels fully support SMP and multiprocessing."
+    ]
+  },
+  {
+    "id": "v04-015",
+    "video": 4,
+    "topic": "Programs to Processes",
+    "subtopic": "Microkernel",
+    "difficulty": "hard",
+    "type": "comparison",
+    "question": "Why do microkernels generally have better fault isolation but worse performance than monolithic kernels?",
+    "options": [
+      "Microkernels run all code in Ring 3 which is faster; monolithic kernels use slow Ring 0 instructions",
+      "Microkernels limit core kernel to Ring 0; user-space servers communicate via IPC messages which adds latency compared to direct function calls in monolithic kernels",
+      "Microkernels eliminate the need for page tables while monolithic kernels require expensive address space operations",
+      "Both have identical performance characteristics on modern hardware"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In microkernels, OS services (filesystem, drivers) run as user-space processes. When a user program needs a driver service, multiple context switches and IPC message passes are needed, adding latency compared to the direct function calls used inside a monolithic kernel.",
+    "optionExplanations": [
+      "Ring 3 is NOT faster than Ring 0; Ring 0 has fewer hardware restrictions.",
+      "Correct. Microkernel IPC between user-space servers adds latency vs direct Ring 0 function calls in monolithic kernels.",
+      "Both kernel types use page tables; microkernels may add extra address space switches for IPC.",
+      "Performance difference is well-documented and significant in practice."
+    ]
+  }
+]

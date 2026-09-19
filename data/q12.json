@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v12-001",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Power-on reset sequence",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "When an x86 PC is powered on, what is the FIRST instruction the CPU executes and from where?",
+    "options": [
+      "The first instruction in the MBR loaded from disk",
+      "The CPU begins at a hardwired reset vector, executing from BIOS ROM at physical address 0xFFFF0",
+      "The bootloader runs from RAM immediately after power on",
+      "The OS kernel starts execution from its entry point"
+    ],
+    "correctAnswer": 1,
+    "explanation": "At power-on reset, the x86 CPU initializes CS:IP to 0xF000:0xFFF0 (effective physical address 0xFFFF0), which is within the BIOS ROM area. The BIOS firmware is the first code to execute.",
+    "optionExplanations": [
+      "The MBR is loaded by BIOS after POST; it is not the first instruction executed.",
+      "Correct. x86 resets to physical address 0xFFFF0 (BIOS ROM), executing the BIOS power-on code.",
+      "RAM requires initialization by BIOS before it can be used; RAM code cannot execute at power-on.",
+      "The OS kernel loads much later in the boot sequence, well after BIOS and bootloader."
+    ]
+  },
+  {
+    "id": "v12-002",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "BIOS role",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What does BIOS POST (Power-On Self-Test) accomplish during system startup?",
+    "options": [
+      "It loads the OS kernel from disk into RAM",
+      "It verifies basic hardware functionality (CPU, RAM, keyboard, video card) before handing off to the bootloader",
+      "It configures the OS network stack settings",
+      "It decompresses the boot partition"
+    ],
+    "correctAnswer": 1,
+    "explanation": "BIOS POST checks basic hardware: verifies CPU is functional, tests RAM, initializes video card, configures DRAM parameters, and detects/initializes connected hardware devices. Only after POST does BIOS search for a bootable device.",
+    "optionExplanations": [
+      "OS kernel loading is done by the bootloader (e.g., GRUB), not BIOS POST.",
+      "Correct. POST verifies hardware integrity and initializes devices before searching for a boot device.",
+      "Network stack configuration is an OS/application-level function, not a BIOS POST task.",
+      "Boot partition decompression is a bootloader or OS function."
+    ]
+  },
+  {
+    "id": "v12-003",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "MBR structure",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the Master Boot Record (MBR) and where is it located?",
+    "options": [
+      "The first 512 bytes of the boot device, containing bootloader code and partition table",
+      "The first sector of the OS kernel file on disk",
+      "A hardware register storing the boot device address",
+      "The BIOS configuration stored in CMOS memory"
+    ],
+    "correctAnswer": 0,
+    "explanation": "The MBR is the first 512-byte sector (LBA 0) of a boot device. It contains: bootloader code (446 bytes), partition table (64 bytes, 4 entries \u00d7 16 bytes), and a boot signature (0x55AA, 2 bytes). BIOS loads the MBR to address 0x7C00 and jumps to it.",
+    "optionExplanations": [
+      "Correct. MBR = first 512-byte sector of boot device with bootloader code + partition table + 0x55AA signature.",
+      "OS kernel files are separate from the MBR; they are inside filesystem partitions.",
+      "The boot device is identified by hardware registers; MBR is data on the disk itself.",
+      "CMOS memory stores BIOS settings (time, boot order); MBR is on the boot disk."
+    ]
+  },
+  {
+    "id": "v12-004",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Real mode to protected mode transition",
+    "difficulty": "medium",
+    "type": "sequence",
+    "question": "What must the bootloader do to switch the CPU from real mode to protected mode?",
+    "options": [
+      "Execute SYSCALL instruction",
+      "Set up a valid GDT, load it with LGDT, then set the PE bit in CR0",
+      "Call BIOS interrupt 0x13 with AX=0x2401",
+      "Execute the IRET instruction"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Protected mode transition: (1) Set up a GDT with at least a null descriptor, code segment, and data segment descriptors; (2) Load the GDT into the GDTR using LGDT; (3) Set bit 0 (PE bit) of CR0 to 1; (4) Perform a far jump to flush the CPU pipeline and load CS with a valid protected mode segment selector.",
+    "optionExplanations": [
+      "SYSCALL is a system call instruction, not a mode switch instruction.",
+      "Correct. GDT setup \u2192 LGDT \u2192 CR0.PE=1 \u2192 far jump is the required sequence for real\u2192protected mode transition.",
+      "BIOS INT 0x13 AX=0x2401 is an A20 line enable call, not the protected mode switch.",
+      "IRET is for returning from interrupt handlers, not for switching CPU modes."
+    ]
+  },
+  {
+    "id": "v12-005",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Boot processor (BSP) designation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In a multiprocessor x86 system, what is the Boot Processor (BSP)?",
+    "options": [
+      "A dedicated processor used only for BIOS operations",
+      "The one processor designated to execute the initial boot sequence; other processors (APs) remain halted until the BSP explicitly starts them",
+      "A processor that manages only hardware interrupts",
+      "The fastest CPU core in the system"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In a multiprocessor system, hardware designates one processor as the Bootstrap Processor (BSP). The BSP executes BIOS, bootloader, and OS initialization. All other Application Processors (APs) start in a halted INIT state until the BSP sends them Startup IPIs.",
+    "optionExplanations": [
+      "The BSP runs the full boot sequence, not just BIOS; it then starts APs.",
+      "Correct. BSP runs the boot sequence; APs wait in INIT state for Startup IPIs from the BSP.",
+      "Interrupt management in SMP is shared via the APIC; there is no dedicated interrupt-only processor.",
+      "BSP designation is done by firmware/hardware, not by CPU core speed."
+    ]
+  },
+  {
+    "id": "v12-006",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Startup interprocessor interrupt (IPI)",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "How does the Boot Processor (BSP) wake up Application Processors (APs) in an SMP x86 system?",
+    "options": [
+      "By writing to a shared memory location that APs poll",
+      "By sending Startup IPI (Inter-Processor Interrupt) messages via the APIC to each AP specifying the startup code address",
+      "By broadcasting a hardware reset signal to all CPUs simultaneously",
+      "By loading AP code directly into AP instruction registers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The BSP uses the local APIC to send INIT IPI (to reset APs) followed by two SIPI (Startup IPI) messages to each AP. The SIPI contains the physical page address (segment address) where APs should start executing their initialization code.",
+    "optionExplanations": [
+      "Polling a shared memory location is a software synchronization technique; APs start via hardware IPI.",
+      "Correct. BSP sends INIT IPI then SIPI messages via APIC to start each AP at a specified code address.",
+      "A hardware reset would reset all CPUs including the BSP; IPIs are targeted to specific APs.",
+      "AP instruction registers cannot be directly written by the BSP; the SIPI mechanism sets the start address."
+    ]
+  },
+  {
+    "id": "v12-007",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Real mode characteristics",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What are the key characteristics of x86 Real Mode?",
+    "options": [
+      "Full 4 GB addressability, hardware paging, and CPU privilege rings",
+      "16-bit instructions, 20-bit physical address space (1 MB max), no memory protection, no privilege levels",
+      "64-bit instructions and 48-bit virtual addresses",
+      "32-bit instructions with segmentation but no paging"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Real Mode (the mode x86 CPUs start in) is a 16-bit mode with a 20-bit physical address bus (1 MB max addressability), no memory protection between programs, and no CPU privilege levels \u2014 all code runs with full access.",
+    "optionExplanations": [
+      "4 GB addressability and hardware paging are protected mode features.",
+      "Correct. Real mode = 16-bit, 1 MB max, no protection, no privilege rings.",
+      "64-bit instructions are long mode (64-bit protected mode); not real mode.",
+      "32-bit instructions with full protection describes 32-bit protected mode, not real mode."
+    ]
+  },
+  {
+    "id": "v12-008",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "MBR structure",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "After loading the MBR, the BIOS checks for a boot signature of 0x55AA at bytes 510-511. What happens if this signature is absent?",
+    "options": [
+      "BIOS executes the MBR anyway and hopes for the best",
+      "BIOS treats the disk as non-bootable and skips to the next boot device in the boot priority list",
+      "BIOS reformats the disk",
+      "BIOS boots from the internal ROM instead"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The 0x55AA signature is the BIOS validity check for the MBR. If absent, BIOS considers the device non-bootable and tries the next device in the configured boot priority order (e.g., tries USB if disk has no valid MBR).",
+    "optionExplanations": [
+      "BIOS validates the signature specifically to avoid executing invalid/corrupted boot sectors.",
+      "Correct. Missing 0x55AA signature causes BIOS to skip the device and try the next boot option.",
+      "BIOS does not reformat disks; it only reads/validates the MBR.",
+      "BIOS does not have a fallback bootable internal ROM for general operating system booting."
+    ]
+  },
+  {
+    "id": "v12-009",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Operating system loading process",
+    "difficulty": "medium",
+    "type": "sequence",
+    "question": "What is the correct sequence of events in a typical x86 PC boot process?",
+    "options": [
+      "OS kernel \u2192 Bootloader \u2192 BIOS POST \u2192 MBR \u2192 User programs",
+      "BIOS POST \u2192 MBR/Bootloader \u2192 Protected mode \u2192 OS kernel loading \u2192 init process",
+      "MBR \u2192 BIOS POST \u2192 OS kernel \u2192 Bootloader \u2192 User programs",
+      "Protected mode \u2192 BIOS POST \u2192 MBR \u2192 OS kernel \u2192 User programs"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Correct sequence: (1) BIOS POST (hardware check), (2) BIOS loads MBR from boot device, (3) Bootloader sets up protected mode and loads OS kernel, (4) Kernel initializes subsystems, (5) Kernel starts init/systemd process, (6) User programs run.",
+    "optionExplanations": [
+      "The OS kernel cannot run before the bootloader loads it.",
+      "Correct. BIOS POST \u2192 MBR (bootloader) \u2192 protected mode setup \u2192 kernel loading \u2192 init process.",
+      "BIOS POST comes before MBR loading, and the OS kernel comes after the bootloader.",
+      "BIOS POST must run before any software; it cannot come after protected mode."
+    ]
+  },
+  {
+    "id": "v12-010",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Multiprocessor booting sequence",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "Why must Application Processors (APs) in a multiprocessor system be explicitly started by the BSP rather than starting automatically at power-on?",
+    "options": [
+      "APs have faster clock speeds and would finish booting before the BSP",
+      "If all CPUs executed boot code simultaneously, they would all try to initialize the same hardware devices, causing conflicts and race conditions",
+      "APs have defective CPUs that cannot execute BIOS code",
+      "The BIOS only has one copy of its ROM"
+    ],
+    "correctAnswer": 1,
+    "explanation": "If all CPUs booted simultaneously, they would all try to initialize memory controllers, PCI devices, and I/O systems at the same time, causing register collisions and undefined behavior. The sequential BSP-then-APs model ensures orderly hardware initialization.",
+    "optionExplanations": [
+      "AP speed is irrelevant; the design ensures orderly single-point initialization.",
+      "Correct. Simultaneous multi-CPU hardware initialization would cause race conditions on shared hardware registers.",
+      "APs are fully functional CPUs; they are simply held in INIT state by hardware design until SIPI.",
+      "BIOS ROM is shared read-only; simultaneous execution of BIOS is not the issue."
+    ]
+  },
+  {
+    "id": "v12-011",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Global Descriptor Table (GDT) setup",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Why must the bootloader set up a GDT before switching to protected mode?",
+    "options": [
+      "The GDT contains the disk partition table needed to read the OS kernel",
+      "Protected mode uses segment selectors that index into the GDT; without a valid GDT, the CPU cannot resolve memory addresses in protected mode",
+      "The GDT stores the bootloader's stack frame",
+      "The GDT is required for BIOS interrupt calls to work"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In protected mode, segment registers (CS, DS, SS) contain selectors that index the GDT for segment descriptor lookup. Without a valid GDT, the CPU cannot determine segment base addresses or validate privilege levels, making execution impossible.",
+    "optionExplanations": [
+      "The disk partition table is stored in the MBR, not the GDT.",
+      "Correct. Protected mode segment selector resolution requires a valid GDT; no GDT = no valid segment descriptors = CPU cannot function.",
+      "The bootloader stack is set up using SS:ESP; the GDT defines valid segment descriptors.",
+      "BIOS operates in real mode and does not use the GDT; BIOS calls don't require a GDT."
+    ]
+  },
+  {
+    "id": "v12-012",
+    "video": 12,
+    "topic": "PC Booting",
+    "subtopic": "Interrupt Descriptor Table (IDT) setup",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "When does the OS kernel set up the Interrupt Descriptor Table (IDT), and why is it important?",
+    "options": [
+      "Before BIOS POST, to handle hardware events during initialization",
+      "During OS kernel initialization, after entering protected mode, to register handlers for hardware interrupts and exceptions",
+      "After the first user process is created, because no interrupts occur before that",
+      "The IDT is set up by BIOS and never modified by the kernel"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The OS kernel sets up the IDT during early initialization (in protected mode). Without the IDT, hardware interrupts and exceptions would cause undefined behavior. The IDT maps each interrupt/exception vector number to its handler address.",
+    "optionExplanations": [
+      "BIOS POST occurs before the OS; the OS kernel sets up its own IDT after loading.",
+      "Correct. IDT is set up by the kernel during protected mode initialization to handle interrupts and exceptions properly.",
+      "Interrupts can occur at any time after hardware initialization; the IDT must be ready before user processes.",
+      "BIOS has its own real-mode IVT; the OS kernel replaces/sets up the protected-mode IDT for its handlers."
+    ]
+  }
+]

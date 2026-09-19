@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v03-001",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "Memory Addressing",
+    "difficulty": "easy",
+    "type": "calculation",
+    "question": "In the standard x86 physical memory layout, what address range is reserved for the VGA text display buffer?",
+    "options": [
+      "0x00000 to 0x9FFFF (0 to 640 KB)",
+      "0xA0000 to 0xBFFFF (640 KB to 768 KB)",
+      "0xF0000 to 0xFFFFF (960 KB to 1 MB)",
+      "0x00000 to 0x003FF (Interrupt Vector Table)"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The address range 0xA0000 to 0xBFFFF (640KB to 768KB) is dedicated to video display memory (VGA frame buffer) on IBM PC compatible architectures.",
+    "optionExplanations": [
+      "0x00000 to 0x9FFFF is Conventional/Low Memory (640 KB RAM).",
+      "Correct. 640KB to 768KB (0xA0000-0xBFFFF) is mapped to VGA display hardware.",
+      "0xF0000 to 0xFFFFF is reserved for System BIOS.",
+      "0x00000 to 0x003FF contains the real-mode Interrupt Vector Table."
+    ]
+  },
+  {
+    "id": "v03-002",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "Memory-Mapped I/O",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "What is the key functional difference between Port-Mapped I/O and Memory-Mapped I/O (MMIO)?",
+    "options": [
+      "Port-Mapped I/O uses dedicated CPU instructions (in/out) and a separate address space; MMIO maps device registers into physical memory space accessed via standard memory instructions",
+      "MMIO requires extra physical wires on the CPU socket",
+      "Port-Mapped I/O is only supported on 64-bit ARM processors",
+      "MMIO can only be accessed by unprivileged Ring 3 applications"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Port I/O uses special x86 in and out instructions with a 64KB I/O address space. MMIO maps device registers into the memory physical address space, accessible using standard mov instructions.",
+    "optionExplanations": [
+      "Correct. Port I/O uses in/out instructions; MMIO uses standard memory access instructions by mapping device registers into the memory address space.",
+      "Both I/O schemes rely on motherboard bus lines.",
+      "x86 supports both Port-Mapped I/O and MMIO.",
+      "MMIO registers are restricted to kernel privilege mode unless explicitly mapped."
+    ]
+  },
+  {
+    "id": "v03-003",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "North Bridge",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In traditional PC chipset architecture, what high-speed components does the North Bridge connect to the CPU?",
+    "options": [
+      "Keyboard, Mouse, Serial ports, and CMOS battery",
+      "High-speed RAM (Memory Controller) and Graphics Card (PCIe/AGP)",
+      "Hard disk drives, USB controllers, and legacy ISA bus",
+      "Power supply unit and cooling fans"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The North Bridge (Host Bridge) directly connects the CPU via the Front-Side Bus (FSB) to system memory (RAM controller) and high-speed expansion slots (PCIe/AGP).",
+    "optionExplanations": [
+      "Low-speed peripherals like keyboard and mouse connect through the South Bridge.",
+      "Correct. North Bridge handles high-speed interfaces: system memory and fast graphics buses.",
+      "Storage drives, USB, and ISA buses connect to the South Bridge.",
+      "Power delivery is managed by power supply circuitry, not the North Bridge chipset."
+    ]
+  },
+  {
+    "id": "v03-004",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "x86 Register Evolution",
+    "difficulty": "easy",
+    "type": "calculation",
+    "question": "The Intel 8086 processor has a 20-bit physical address bus. What is the maximum physical RAM it can address?",
+    "options": [
+      "64 KB",
+      "640 KB",
+      "4 GB",
+      "1 MB"
+    ],
+    "correctAnswer": 3,
+    "explanation": "A 20-bit address bus can address 2^20 = 1,048,576 bytes, which equals exactly 1 Megabyte (1 MB).",
+    "optionExplanations": [
+      "64 KB corresponds to a 16-bit address space.",
+      "640 KB was the conventional RAM limit imposed by IBM PC memory mapping, not the hardware 20-bit limit.",
+      "4 GB corresponds to a 32-bit address space.",
+      "Correct. 2^20 bytes = 1,048,576 bytes = 1 MB maximum physical memory."
+    ]
+  },
+  {
+    "id": "v03-005",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "South Bridge",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Which system components are typically managed by the South Bridge (I/O Controller Hub)?",
+    "options": [
+      "SATA hard drives, USB ports, audio controllers, and legacy I/O devices",
+      "CPU L1 cache and floating-point execution units",
+      "High-speed DDR4 memory channels exclusively",
+      "GPU shaders and VRAM"
+    ],
+    "correctAnswer": 0,
+    "explanation": "The South Bridge handles slower peripheral interfaces, including SATA storage, USB controllers, audio devices, serial/parallel ports, and PCI buses.",
+    "optionExplanations": [
+      "Correct. South Bridge connects slower peripherals: SATA, USB, audio, LPC/ISA buses.",
+      "CPU cache and floating point units are located directly inside the CPU die.",
+      "DDR memory controller connects to the North Bridge or is integrated into modern CPUs.",
+      "GPU shaders are internal to the graphics card."
+    ]
+  },
+  {
+    "id": "v03-006",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "Memory Addressing",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Where is the System BIOS ROM mapped in the standard 1 MB x86 physical memory space?",
+    "options": [
+      "0x00000 to 0x0FFFF",
+      "0x10000 to 0x7FFFF",
+      "0xF0000 to 0xFFFFF (960 KB to 1 MB)",
+      "Above 1 MB in Extended Memory"
+    ],
+    "correctAnswer": 2,
+    "explanation": "The System BIOS ROM is mapped to the top 64 KB of the first megabyte (0xF0000 to 0xFFFFF). At reset, the x86 CPU jumps to 0xFFFF0 to start BIOS execution.",
+    "optionExplanations": [
+      "0x00000 to 0x0FFFF contains real-mode vector table and low memory data.",
+      "0x10000 to 0x7FFFF is conventional application RAM space.",
+      "Correct. 960KB to 1MB (0xF0000-0xFFFFF) holds System BIOS ROM.",
+      "Real-mode BIOS executes within the first 1 MB memory region."
+    ]
+  },
+  {
+    "id": "v03-007",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "x86 Register Evolution",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "Introduced with the Intel 80386, what mode enabled 32-bit flat memory addressing, hardware paging, and multi-level privilege protection?",
+    "options": [
+      "Real Mode",
+      "Protected Mode",
+      "System Management Mode (SMM)",
+      "Virtual 8086 Mode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The Intel 80386 introduced 32-bit Protected Mode, providing full 4 GB addressability, segment descriptor protection, and hardware paging.",
+    "optionExplanations": [
+      "Real Mode is the 16-bit backward-compatible 1 MB mode in which x86 CPUs power on.",
+      "Correct. Protected Mode provided 32-bit flat addressing, privilege protection, and paging.",
+      "System Management Mode is reserved for deep motherboard firmware tasks.",
+      "Virtual 8086 mode allows running real-mode apps inside protected mode."
+    ]
+  },
+  {
+    "id": "v03-008",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "I/O Addressing",
+    "difficulty": "medium",
+    "type": "calculation",
+    "question": "What is the size of the x86 Port-Mapped I/O address space accessible via in and out instructions?",
+    "options": [
+      "1 MB",
+      "4 GB",
+      "256 bytes",
+      "64 KB (65,536 I/O port addresses)"
+    ],
+    "correctAnswer": 3,
+    "explanation": "The x86 architecture defines a 16-bit I/O address space, providing 2^16 = 65,536 individual I/O ports (0x0000 to 0xFFFF).",
+    "optionExplanations": [
+      "1 MB is the real mode memory address space.",
+      "4 GB is the 32-bit memory address space.",
+      "256 bytes was the I/O range on older 8-bit processors like 8080.",
+      "Correct. 2^16 I/O ports = 64 KB address space."
+    ]
+  },
+  {
+    "id": "v03-009",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "Memory-Mapped I/O",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "Why does MMIO simplify OS device driver development compared to Port-Mapped I/O?",
+    "options": [
+      "MMIO allows device registers to be accessed using standard C pointer dereferencing without needing custom assembly wrapper calls",
+      "MMIO does not use physical CPU bus bandwidth",
+      "MMIO automatically disables hardware interrupts",
+      "MMIO bypasses RAM physical address limits"
+    ],
+    "correctAnswer": 0,
+    "explanation": "With MMIO, device registers are assigned physical addresses. In C, drivers can access them via regular pointer dereferencing, avoiding inline assembly in/out calls.",
+    "optionExplanations": [
+      "Correct. Standard C pointer dereferencing works directly on MMIO memory regions.",
+      "MMIO relies on memory bus transactions.",
+      "MMIO does not disable interrupts; devices still trigger interrupts upon status changes.",
+      "MMIO operates within the physical address space."
+    ]
+  },
+  {
+    "id": "v03-010",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "x86 Register Evolution",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "How much physical memory can a 32-bit 80386 processor in Protected Mode address?",
+    "options": [
+      "1 MB",
+      "16 MB",
+      "640 KB",
+      "4 GB"
+    ],
+    "correctAnswer": 3,
+    "explanation": "A 32-bit address bus can address 2^32 = 4,294,967,296 bytes = 4 GB of physical memory.",
+    "optionExplanations": [
+      "1 MB is the 20-bit real mode address limit of the 8086.",
+      "16 MB was the limit of the 80286 with its 24-bit address bus.",
+      "640 KB was the IBM PC conventional memory limit for DOS applications.",
+      "Correct. 32-bit protected mode provides 2^32 = 4 GB addressable space."
+    ]
+  },
+  {
+    "id": "v03-011",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "IBM PC Standard",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "A legacy x86 system has devices at I/O ports 0x60 (keyboard) and 0x1F0 (hard disk). Why must these specific port numbers be maintained in modern systems?",
+    "options": [
+      "They are required by IEEE networking standards",
+      "Legacy software and firmware expect these exact device addresses for IBM PC backward compatibility",
+      "They are the only valid port numbers in the 64KB I/O space",
+      "Modern CPUs can only decode I/O addresses below 0x200"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The IBM PC standard established fixed I/O port assignments for legacy devices. To maintain backward compatibility with decades of existing software and OS drivers, modern PC systems continue to emulate these mappings.",
+    "optionExplanations": [
+      "IEEE networking standards are unrelated to legacy PC I/O port assignments.",
+      "Correct. IBM PC hardware compatibility requires legacy port addresses to remain fixed.",
+      "All 65,536 port numbers are technically valid; legacy assignments are a compatibility convention.",
+      "Modern CPUs can decode the full 64KB I/O address space."
+    ]
+  },
+  {
+    "id": "v03-012",
+    "video": 3,
+    "topic": "PC Hardware and System Architecture",
+    "subtopic": "Memory Addressing",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What purpose do the 16-bit Expansion ROMs serve in the x86 memory map (768 KB to 960 KB range)?",
+    "options": [
+      "They store the BIOS Power-On Self-Test code",
+      "They provide ROM firmware code for expansion cards like VGA adapters and network cards",
+      "They hold the page directory entries for the kernel",
+      "They store the Master Boot Record"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The 768 KB to 960 KB (0xC0000-0xEFFFF) region is reserved for ROM firmware on expansion cards (option ROM). The VGA BIOS and NIC boot ROM are mapped here during power-on.",
+    "optionExplanations": [
+      "BIOS POST code lives in the 0xF0000-0xFFFFF BIOS ROM region.",
+      "Correct. Expansion ROMs hold firmware for add-in cards like VGA, SCSI, and network adapters.",
+      "Page directory entries are in system RAM, not in the expansion ROM region.",
+      "The MBR is on the first 512 bytes of the boot disk, not in ROM address space."
+    ]
+  }
+]

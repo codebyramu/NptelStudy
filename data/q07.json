@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v07-001",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Partition table fields",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "A partition table in the OS memory manager stores entries for each partition. Which additional field, beyond base address and size, helps identify which process owns a partition?",
+    "options": [
+      "Stack pointer value",
+      "Process identifier (PID) of the allocated process",
+      "Virtual page number",
+      "File inode number"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Beyond base address and size, the partition table typically stores the process identifier (PID) of the process owning each allocated partition, along with a usage flag (free/allocated).",
+    "optionExplanations": [
+      "Stack pointer is part of process register state (PCB), not the memory partition table.",
+      "Correct. PID links the partition to its owning process for deallocation and tracking.",
+      "Virtual page numbers belong to the paging system, not the partition model.",
+      "File inode numbers belong to the file system, not memory partition management."
+    ]
+  },
+  {
+    "id": "v07-002",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Deallocation process",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "When a process exits, what happens to its allocated memory partition?",
+    "options": [
+      "The memory is permanently reserved for the OS and cannot be reused",
+      "The partition's usage flag is cleared (marked free), making it available for future allocations",
+      "The partition data is written to disk before being freed",
+      "The physical RAM chips are reset to zero voltage"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When a process exits, the OS marks its partition entry as free by clearing the usage flag and PID. The physical RAM is not immediately zeroed but is now available for reallocation to future processes.",
+    "optionExplanations": [
+      "Permanently reserving memory for exited processes would exhaust RAM quickly.",
+      "Correct. The OS clears the usage flag and PID to mark the partition free for future allocation.",
+      "Partition data might be overwritten on next allocation; it is not formally written to disk on exit in the partition model.",
+      "Physical RAM voltage is not reset; the data remains until overwritten by the next allocation."
+    ]
+  },
+  {
+    "id": "v07-003",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Merging free blocks",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "After two adjacent partitions are both freed, what optimization should the OS perform?",
+    "options": [
+      "Immediately reallocate both to a new process",
+      "Merge (coalesce) the adjacent free blocks into one larger free block to reduce external fragmentation",
+      "Delete the partition table entries permanently",
+      "Swap both partitions to disk"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When adjacent free blocks are merged (coalesced) into one larger free block, it increases the probability that future large allocation requests can be satisfied, combating external fragmentation.",
+    "optionExplanations": [
+      "Reallocating without merging would perpetuate external fragmentation.",
+      "Correct. Merging adjacent free partitions creates larger contiguous free regions, reducing external fragmentation.",
+      "Partition table entries are reused; they are not deleted.",
+      "Adjacent free blocks are in RAM; there is no need to swap them to disk."
+    ]
+  },
+  {
+    "id": "v07-004",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Allocation algorithm comparison",
+    "difficulty": "hard",
+    "type": "comparison",
+    "question": "Which memory allocation algorithm typically results in the most external fragmentation over time, and why?",
+    "options": [
+      "First-Fit \u2014 because it scans from the beginning every time",
+      "Worst-Fit \u2014 because it always allocates the largest block, breaking it into progressively smaller pieces that eventually become too small to use",
+      "Best-Fit \u2014 because it produces tiny leftover fragments",
+      "All three algorithms produce identical fragmentation patterns"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Worst-Fit allocates the largest available block, leaving the remainder as a smaller block. Repeatedly doing this reduces all large blocks to small fragments. Eventually, no block is large enough for new requests.",
+    "optionExplanations": [
+      "First-Fit is not the worst in terms of fragmentation; it leaves a mix of large and small free blocks.",
+      "Correct. Worst-Fit systematically fragments large free blocks into smaller and smaller pieces, producing the most external fragmentation.",
+      "Best-Fit leaves small fragments, but Worst-Fit more aggressively destroys large blocks.",
+      "The three algorithms have significantly different fragmentation characteristics."
+    ]
+  },
+  {
+    "id": "v07-005",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Memory compaction",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What must be true for memory compaction to be possible without breaking running processes?",
+    "options": [
+      "All processes must be in kernel mode during compaction",
+      "Address references in processes must be relocatable (e.g., using base registers), so pointers can be updated as processes are moved",
+      "Processes must be swapped to disk before compaction begins",
+      "The CPU must be in real mode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "For compaction to work, the OS must be able to update all address references in moved processes. This requires either hardware-assisted relocation (base register) or OS-level pointer rewriting.",
+    "optionExplanations": [
+      "Processes do not need to be in kernel mode; but they must be paused or relocation-aware.",
+      "Correct. Relocatable addressing (e.g., base registers or virtual memory) allows moving processes without breaking their address references.",
+      "Some compaction schemes move processes while they run, but they must support relocation.",
+      "Compaction is a protected-mode OS function; real mode is not required."
+    ]
+  },
+  {
+    "id": "v07-006",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Fragmentation",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "A memory system has 1 MB total RAM. Allocated: Process A = 200 KB at 0, Process B = 300 KB at 300 KB, Process C = 100 KB at 700 KB. Free: 100 KB (200-300 KB), 100 KB (600-700 KB), 100 KB (800 KB-1 MB). A new 250 KB process arrives. What is the problem?",
+    "options": [
+      "RAM is too slow to load a 250 KB process",
+      "There is enough total free memory (300 KB) but no single contiguous block of 250 KB \u2014 external fragmentation",
+      "The partition table is full",
+      "The new process needs virtual memory which is unavailable"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Total free memory = 300 KB, which is more than enough for 250 KB. But the free memory is split into three 100 KB blocks \u2014 no single contiguous block of 250 KB exists. This is classic external fragmentation.",
+    "optionExplanations": [
+      "RAM speed is irrelevant to this fragmentation problem.",
+      "Correct. Sufficient total free memory but no single contiguous 250 KB block available \u2014 classic external fragmentation.",
+      "Partition tables can hold many more entries; the table is not the constraint here.",
+      "This is a physical memory fragmentation problem; virtual memory is the solution, not the cause."
+    ]
+  },
+  {
+    "id": "v07-007",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Virtual memory",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "How does virtual memory fundamentally solve the external fragmentation problem of the partition model?",
+    "options": [
+      "It compresses all free blocks into a single region automatically",
+      "It allows non-contiguous physical memory frames to appear as a contiguous virtual address space to the process",
+      "It prevents processes from using more memory than physically installed",
+      "It replaces RAM with faster disk-based storage"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Virtual memory uses the MMU to map a process's contiguous virtual addresses to scattered non-contiguous physical page frames. The process sees a clean contiguous address space while physical memory can be used without requiring contiguous allocation.",
+    "optionExplanations": [
+      "Virtual memory does not compress free blocks; it avoids the contiguity requirement entirely.",
+      "Correct. MMU page tables map contiguous virtual addresses to non-contiguous physical frames, eliminating the need for contiguous physical allocation.",
+      "Swapping allows processes to use more memory than physically installed; it's a feature, not a limitation.",
+      "Virtual memory uses RAM as the primary store; disk is only used for swapping pages out."
+    ]
+  },
+  {
+    "id": "v07-008",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Allocation algorithm comparison",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "When would First-Fit generally be preferred over Best-Fit in practice?",
+    "options": [
+      "When minimizing internal fragmentation is the top priority",
+      "When allocation speed is important, since First-Fit terminates as soon as it finds the first fit while Best-Fit must scan all free blocks",
+      "When the system has unlimited RAM",
+      "When all process sizes are identical"
+    ],
+    "correctAnswer": 1,
+    "explanation": "First-Fit stops at the first sufficiently large block (fast), while Best-Fit must scan all free blocks to find the minimum sufficient size (slower). For time-critical allocation, First-Fit's speed advantage makes it preferable.",
+    "optionExplanations": [
+      "Best-Fit minimizes per-allocation waste better than First-Fit.",
+      "Correct. First-Fit terminates early on the first fit; Best-Fit scans all blocks, making First-Fit faster.",
+      "Algorithm choice matters regardless of RAM amount.",
+      "Identical process sizes would make Best-Fit and First-Fit produce the same results."
+    ]
+  },
+  {
+    "id": "v07-009",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Segmentation",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is the purpose of segmentation in memory management?",
+    "options": [
+      "To split physical RAM into equal-sized pages",
+      "To divide a program's logical address space into meaningful, variable-sized segments such as code, data, stack, and heap",
+      "To create a single large contiguous physical memory region",
+      "To map file blocks to disk sectors"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Segmentation divides a program's logical memory into variable-sized segments with different attributes (read-only code, read-write data, grow-down stack). Each segment is a logically meaningful unit that can be placed independently in physical memory.",
+    "optionExplanations": [
+      "Equal-sized division describes paging, not segmentation.",
+      "Correct. Segmentation maps logical program divisions (code/data/stack/heap) to independent variable-size memory regions.",
+      "Segmentation allows non-contiguous physical placement.",
+      "Disk sector mapping is a file system operation."
+    ]
+  },
+  {
+    "id": "v07-010",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Partition table fields",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In the partition-based memory model, how does the OS determine whether a partition is currently free or in use?",
+    "options": [
+      "By checking the process's priority value in the partition table",
+      "By examining a usage flag (free/occupied) in the partition table entry",
+      "By reading the content of the first byte of the partition",
+      "By consulting the disk inode table"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Each partition table entry contains a usage flag (or status bit/field) indicating whether the partition is currently free or allocated to a process.",
+    "optionExplanations": [
+      "Priority is stored in the PCB, not the memory partition table.",
+      "Correct. The usage flag in the partition table entry indicates free or allocated status.",
+      "Reading partition content would be both slow and unreliable as a free indicator.",
+      "Disk inode tables track file system metadata, not memory partition status."
+    ]
+  },
+  {
+    "id": "v07-011",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Fragmentation",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "What is the key reason the partition model ultimately becomes unusable in systems that run many processes over long periods?",
+    "options": [
+      "The partition table runs out of RAM",
+      "External fragmentation accumulates over time until no new processes can be allocated even though significant free memory exists",
+      "Processes forget their base addresses after restart",
+      "The OS crashes when more than 10 processes are allocated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Over time, as processes are allocated and freed, memory becomes increasingly fragmented. Even with significant total free RAM, the scattered non-contiguous holes cannot satisfy new requests, making the system effectively unable to allocate new processes.",
+    "optionExplanations": [
+      "The partition table itself is small and rarely a limiting factor.",
+      "Correct. Accumulating external fragmentation eventually makes the system unable to serve new allocation requests.",
+      "Base addresses are stored in the partition table, not in the process itself.",
+      "The OS handles many processes; the limit is fragmentation, not a process count limit."
+    ]
+  },
+  {
+    "id": "v07-012",
+    "video": 7,
+    "topic": "Memory Management",
+    "subtopic": "Memory compaction",
+    "difficulty": "hard",
+    "type": "understanding",
+    "question": "Why is memory compaction generally not used as the primary solution to external fragmentation in modern operating systems?",
+    "options": [
+      "Modern OS kernels lack the mathematical ability to calculate new addresses",
+      "Compaction has O(n) time and space cost proportional to the total allocated memory, and pausing all processes is unacceptable for interactive or real-time systems",
+      "Compaction only works on systems with exactly 1 GB of RAM",
+      "Modern CPUs cannot execute compaction instructions"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Compaction requires copying potentially gigabytes of data, updating all address references, and stopping processes during the move. This overhead is prohibitive for interactive systems. Virtual memory with paging eliminates the need for compaction altogether.",
+    "optionExplanations": [
+      "OS kernels can compute new addresses; the cost of doing so at scale is the problem.",
+      "Correct. Compaction's high cost (copying, pointer fixing, process suspension) makes it impractical; paging solves the problem more elegantly.",
+      "Compaction is not RAM-size-specific; the problem is computational cost.",
+      "CPUs can execute memory copy operations; the issue is operational cost."
+    ]
+  }
+]

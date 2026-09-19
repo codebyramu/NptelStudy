@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v11-001",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Kernel virtual address space",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, what virtual address range is reserved for the kernel, and what is KERNBASE?",
+    "options": [
+      "0x00000000 to 0x7FFFFFFF for kernel",
+      "0x80000000 and above for kernel (KERNBASE = 0x80000000)",
+      "0xFFFF0000 to 0xFFFFFFFF for kernel",
+      "Kernel has no fixed virtual address"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 divides the 4 GB virtual address space: the lower 2 GB (0x00000000-0x7FFFFFFF) is user space; the upper 2 GB (0x80000000-0xFFFFFFFF) is kernel space with KERNBASE = 0x80000000.",
+    "optionExplanations": [
+      "The lower half is user space, not kernel space.",
+      "Correct. KERNBASE = 0x80000000; kernel occupies the upper virtual address range.",
+      "Only a tiny real-mode BIOS region exists at 0xFFFF0; this is not xv6's kernel base.",
+      "xv6 firmly places the kernel above KERNBASE for consistent virtual-to-physical conversion."
+    ]
+  },
+  {
+    "id": "v11-002",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "User space vs Kernel space",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, what prevents a user process from reading or writing kernel memory that is mapped in the upper virtual address space?",
+    "options": [
+      "Kernel memory is stored on a separate physical chip",
+      "User-accessible pages have the PTE_U bit set; kernel pages do NOT have PTE_U set, causing a protection fault on user access",
+      "The kernel runs on a separate CPU core",
+      "The kernel erases its memory pages before each system call"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 page tables include the PTE_U (user-accessible) bit in page table entries. Kernel pages are mapped with PTE_U=0. When user mode (Ring 3) accesses a non-PTE_U page, the x86 hardware raises a general protection fault.",
+    "optionExplanations": [
+      "Both user and kernel memory reside on the same physical DRAM chips.",
+      "Correct. PTE_U=0 in kernel page table entries prevents Ring 3 user mode from accessing kernel pages.",
+      "A single CPU switches modes via privilege level changes; no separate physical CPU is needed.",
+      "Kernel memory is not erased on each system call; it is protected by page table bits."
+    ]
+  },
+  {
+    "id": "v11-003",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Kernel memory mapping",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "Why does xv6 map the kernel into EVERY process's page table (in the upper address range)?",
+    "options": [
+      "To allow user processes to call kernel functions directly",
+      "To enable the kernel to remain active in the MMU after switching from user mode to kernel mode, avoiding a costly address space switch on every system call",
+      "To give user processes access to kernel data structures",
+      "To reduce the total number of page tables needed"
+    ],
+    "correctAnswer": 1,
+    "explanation": "By mapping kernel pages in the upper virtual address space of every process page table, the kernel's virtual address space remains consistent and accessible when a system call or interrupt switches the CPU from Ring 3 to Ring 0, without needing to change CR3.",
+    "optionExplanations": [
+      "User processes cannot call kernel functions directly; they use system calls (traps).",
+      "Correct. Kernel mapping in every process page table allows seamless Ring 3\u2192Ring 0 transitions without CR3 reload.",
+      "Kernel pages are mapped with PTE_U=0, so user processes cannot access them.",
+      "Each process still has its own page table; the kernel mapping is just replicated in the upper range."
+    ]
+  },
+  {
+    "id": "v11-004",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Virtual-to-physical address conversion",
+    "difficulty": "medium",
+    "type": "calculation",
+    "question": "In xv6, if KERNBASE = 0x80000000 and a physical address is 0x00100000 (1 MB), what is the corresponding kernel virtual address?",
+    "options": [
+      "0x00100000",
+      "0x80100000",
+      "0xFF100000",
+      "0x00000000"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Kernel virtual addresses in xv6 = physical address + KERNBASE. So 0x00100000 + 0x80000000 = 0x80100000. The p2v macro performs this: p2v(pa) = (char*)pa + KERNBASE.",
+    "optionExplanations": [
+      "0x00100000 is the physical address, not the kernel virtual address.",
+      "Correct. Kernel VA = PA + KERNBASE = 0x00100000 + 0x80000000 = 0x80100000.",
+      "0xFF100000 would require KERNBASE = 0xFF000000 which is not the case.",
+      "0x00000000 is an invalid kernel virtual address (below KERNBASE)."
+    ]
+  },
+  {
+    "id": "v11-005",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Memory protection",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "A user process reads from virtual address 0x80001000 (above KERNBASE). What happens?",
+    "options": [
+      "The kernel returns the data transparently to the user",
+      "A page fault occurs because the page at 0x80001000 is mapped with PTE_U=0, and user mode cannot access it",
+      "The address wraps around to physical address 0x00001000",
+      "The OS copies the kernel page to user space automatically"
+    ],
+    "correctAnswer": 1,
+    "explanation": "0x80001000 is in the kernel virtual address range. The corresponding page table entry has PTE_U=0. When the MMU detects a Ring 3 access to a non-user page, it raises a page fault with error code indicating a permission violation.",
+    "optionExplanations": [
+      "The hardware enforces the protection; the kernel does not voluntarily share its pages.",
+      "Correct. Accessing a non-PTE_U page from user mode causes a hardware page fault (#PF with protection error).",
+      "Virtual addresses don't wrap; each address space is isolated via page tables.",
+      "Automatic kernel page copying would be a massive security violation."
+    ]
+  },
+  {
+    "id": "v11-006",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Process Control Block (PCB)",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In xv6, the proc structure (PCB) contains a field called 'pgdir'. What does pgdir represent?",
+    "options": [
+      "The process priority directory for scheduling",
+      "A pointer to the process's page directory (the top-level page table structure)",
+      "The program's global data directory",
+      "The process's file descriptor array"
+    ],
+    "correctAnswer": 1,
+    "explanation": "pgdir in xv6's struct proc is a pointer to the process's page directory (pde_t*). It is the CR3-loadable structure that defines the process's entire virtual address space mapping.",
+    "optionExplanations": [
+      "Process priority is stored in a separate field; pgdir is specifically about memory management.",
+      "Correct. pgdir points to the process's page directory, which is loaded into CR3 when the process runs.",
+      "Global data is stored in process memory; pgdir is a metadata pointer in the PCB.",
+      "File descriptors are stored in the ofile[] array in struct proc; pgdir is for memory management."
+    ]
+  },
+  {
+    "id": "v11-007",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Kernel stack",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Why does each process in xv6 have its own dedicated kernel stack?",
+    "options": [
+      "To store the process's user variables during normal execution",
+      "To provide an isolated stack for kernel execution during system calls and interrupts for this process, preventing kernel stack corruption across processes",
+      "To replace the user stack during process creation",
+      "To store file system metadata for the process"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When a system call or interrupt switches a process to kernel mode, the CPU uses the kernel stack of that specific process. Having per-process kernel stacks ensures that nested or concurrent system calls for different processes don't interfere with each other's stack frames.",
+    "optionExplanations": [
+      "User variables are on the user stack; the kernel stack is used exclusively during kernel execution.",
+      "Correct. Per-process kernel stacks isolate kernel execution contexts, preventing cross-process stack corruption.",
+      "The user stack is separate; the kernel stack is for kernel mode execution only.",
+      "File system metadata is managed in inodes and directories, not in per-process kernel stacks."
+    ]
+  },
+  {
+    "id": "v11-008",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Contiguous kernel mapping",
+    "difficulty": "hard",
+    "type": "assertion",
+    "question": "Statement I: In xv6, physical memory from 0 to PHYSTOP is mapped contiguously at kernel virtual address KERNBASE to KERNBASE+PHYSTOP.\nStatement II: This contiguous kernel mapping is necessary so the kernel can access any physical RAM location using simple arithmetic (pa+KERNBASE) without walking page tables.",
+    "options": [
+      "Statement I is true; Statement II is false",
+      "Both statements are true, and Statement II correctly explains the benefit of Statement I",
+      "Statement I is false; Statement II is true",
+      "Both statements are false"
+    ],
+    "correctAnswer": 1,
+    "explanation": "xv6 does map physical memory contiguously into kernel virtual space at the KERNBASE offset. This contiguous mapping allows the kernel to access physical frames using the p2v macro (arithmetic addition) rather than expensive page table traversal.",
+    "optionExplanations": [
+      "Both statements are true and correctly related.",
+      "Correct. Contiguous kernel mapping + constant offset = efficient arithmetic address conversion.",
+      "Statement I is also true; both statements are correct.",
+      "Both statements accurately describe xv6 kernel memory layout and its benefit."
+    ]
+  },
+  {
+    "id": "v11-009",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Virtual-to-physical address conversion",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "In xv6, when must the kernel use v2p() to convert an address rather than a direct page table walk?",
+    "options": [
+      "When accessing user-space variables",
+      "When loading a physical address into a hardware register (like CR3) that requires an actual physical address, not a virtual address",
+      "When writing to kernel data structures",
+      "When calling system call handlers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Hardware registers like CR3 require physical addresses, not virtual addresses. The kernel's pgdir pointer is a virtual address. v2p(pgdir) converts it to the physical address that must be loaded into CR3 for the MMU to use.",
+    "optionExplanations": [
+      "User-space variables are accessed via the process's virtual address space.",
+      "Correct. Hardware registers (CR3, DMA base address registers) require physical addresses; v2p converts kernel VA to PA.",
+      "Writing to kernel data structures uses virtual addresses; the MMU translates them automatically.",
+      "System call handlers use virtual addresses; v2p is only needed when physical addresses are required by hardware."
+    ]
+  },
+  {
+    "id": "v11-010",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Kernel stack",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In xv6's struct proc (PCB), which field stores the kernel stack?",
+    "options": [
+      "pgdir",
+      "kstack",
+      "sz",
+      "state"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The kstack field in xv6's struct proc is a fixed-size (KSTACKSIZE bytes) character array allocated as the kernel stack for the process. It is used during system calls and interrupt handling when the process is in kernel mode.",
+    "optionExplanations": [
+      "pgdir stores a pointer to the process's page directory, not the kernel stack.",
+      "Correct. kstack is the per-process kernel stack buffer allocated within the PCB.",
+      "sz stores the size of the process's user address space (in bytes).",
+      "state stores the current process state (UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE)."
+    ]
+  },
+  {
+    "id": "v11-011",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "User space vs Kernel space",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "The 'sz' field in xv6's struct proc stores what value?",
+    "options": [
+      "The size of the kernel stack in bytes",
+      "The number of open file descriptors",
+      "The size (in bytes) of the process's user virtual address space",
+      "The physical address of the process's page directory"
+    ],
+    "correctAnswer": 2,
+    "explanation": "sz in xv6's struct proc tracks the upper boundary of the process's user address space in bytes. It starts at 0 and grows as exec() loads the program and as the process uses sbrk() to grow its heap.",
+    "optionExplanations": [
+      "Kernel stack size is fixed at KSTACKSIZE; sz tracks user address space size.",
+      "File descriptors are tracked in the ofile[] array; sz tracks address space size.",
+      "Correct. sz stores the size of the user virtual address space, marking how much user memory has been mapped.",
+      "pgdir stores the page directory address; sz stores the user memory boundary."
+    ]
+  },
+  {
+    "id": "v11-012",
+    "video": 11,
+    "topic": "xv6 Memory Setup",
+    "subtopic": "Memory protection",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "In xv6, if a process grows its memory with sbrk() and the kernel allocates a new page with kalloc(), what two things must the kernel do to make that page usable by the user process?",
+    "options": [
+      "Only update sz in the PCB",
+      "Call mappages() to create a PTE mapping the new physical frame into the user's virtual address space at the appropriate VA, AND update sz",
+      "Write zeros to the new page and log it to disk",
+      "Free the page and reallocate it as a kernel page"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Two steps: (1) mappages() creates the PTE with PTE_P|PTE_W|PTE_U bits so the user can read/write the page, and (2) sz is updated to reflect the new size of the user address space, marking the new boundary.",
+    "optionExplanations": [
+      "Updating sz alone without creating a PTE would leave the virtual address unmapped, causing a page fault on access.",
+      "Correct. Both mappages (to create the PTE in the page table) and sz update (to track new address space boundary) are required.",
+      "Writing zeros is optional; disk logging is for the file system, not user memory allocation.",
+      "Freeing and reallocating as kernel memory defeats the purpose of sbrk() which grows user memory."
+    ]
+  }
+]

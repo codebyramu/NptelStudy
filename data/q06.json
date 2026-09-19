@@ -1,0 +1,278 @@
+[
+  {
+    "id": "v06-001",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Partition Model",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In the early OS partition memory model, what information does a partition table entry contain?",
+    "options": [
+      "CPU register values and program counter",
+      "Base address, Size, and Usage flag for each partition",
+      "Page table entries and TLB entries",
+      "File names and directory paths"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A partition table entry contains the Base address (where the partition starts in RAM), Size (how large it is), and a Usage flag (whether it is free or allocated to a process).",
+    "optionExplanations": [
+      "CPU register values are stored in the PCB (Process Control Block), not the partition table.",
+      "Correct. Partition table entries contain base, size, and usage flag.",
+      "Page table entries belong to the paging system, not the partition model.",
+      "File names and directories are filesystem concepts, not memory partition table contents."
+    ]
+  },
+  {
+    "id": "v06-002",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Internal fragmentation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is internal fragmentation in memory allocation?",
+    "options": [
+      "Free memory scattered in small non-contiguous chunks between allocated partitions",
+      "Wasted memory inside an allocated partition when the process does not use all of its allocated space",
+      "Memory corruption caused by buffer overflow",
+      "Fragmentation of files on a hard disk"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Internal fragmentation occurs when a process is allocated a memory partition larger than it actually needs, leaving unused wasted space within the allocated partition boundaries.",
+    "optionExplanations": [
+      "Free memory scattered between partitions describes external fragmentation, not internal.",
+      "Correct. Internal fragmentation = wasted space INSIDE an allocated partition due to size mismatch.",
+      "Buffer overflow is a security bug, not a fragmentation type.",
+      "Disk file fragmentation is a storage concept, not RAM memory fragmentation."
+    ]
+  },
+  {
+    "id": "v06-003",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "External fragmentation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is external fragmentation, and when does it occur?",
+    "options": [
+      "Wasted space inside allocated partitions",
+      "Free memory exists in total but is split into small non-contiguous gaps between allocated blocks, so a large contiguous request cannot be satisfied",
+      "A page table entry pointing to an invalid physical frame",
+      "A process stack overflowing into the heap"
+    ],
+    "correctAnswer": 1,
+    "explanation": "External fragmentation occurs when total free memory is sufficient for a new allocation, but it is scattered in many small non-contiguous holes. A process requiring a large contiguous block cannot be allocated even though enough total free bytes exist.",
+    "optionExplanations": [
+      "Wasted space inside an allocated partition is internal fragmentation.",
+      "Correct. External fragmentation = sufficient total free memory but fragmented into non-contiguous pieces, preventing large allocations.",
+      "An invalid page table entry causes a page fault, not external fragmentation.",
+      "Stack overflow is a process-level programming bug, not an OS memory fragmentation issue."
+    ]
+  },
+  {
+    "id": "v06-004",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "First-fit",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "How does the First-Fit memory allocation algorithm work?",
+    "options": [
+      "Allocates the smallest free partition that is large enough for the process",
+      "Allocates the largest available free partition",
+      "Scans the partition table from the beginning and allocates the FIRST partition that is large enough",
+      "Allocates memory in round-robin order across all free partitions"
+    ],
+    "correctAnswer": 2,
+    "explanation": "First-Fit scans the free partition list from the start and allocates the first (lowest address) free block that is large enough to satisfy the request. It is fast but may leave small unusable fragments near the front of the list.",
+    "optionExplanations": [
+      "Allocating the smallest sufficient partition is Best-Fit, not First-Fit.",
+      "Allocating the largest partition is Worst-Fit.",
+      "Correct. First-Fit scans from the beginning and allocates the first sufficiently large free block.",
+      "Round-robin allocation is not a standard memory allocation algorithm."
+    ]
+  },
+  {
+    "id": "v06-005",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Best-fit",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "Why can Best-Fit memory allocation lead to more external fragmentation than First-Fit in practice?",
+    "options": [
+      "Best-Fit always allocates the largest partition, leaving large holes",
+      "Best-Fit allocates the smallest sufficient partition, leaving tiny leftover fragments that are too small for future allocations",
+      "Best-Fit requires scanning the entire free list which corrupts partition table entries",
+      "Best-Fit eliminates all fragmentation by perfect size matching"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Best-Fit finds the smallest partition that fits the request. After allocation, the tiny remainder (if any) is often too small to be useful. Over time, memory fills with many tiny unusable fragments, worsening external fragmentation.",
+    "optionExplanations": [
+      "Best-Fit allocates the SMALLEST sufficient partition, not the largest (that would be Worst-Fit).",
+      "Correct. Best-Fit leaves tiny hard-to-reuse remnants, creating excessive small-fragment external fragmentation.",
+      "Scanning the free list is a performance cost, not a correctness issue.",
+      "Best-Fit actually tends to produce more scattered small fragments, not eliminate fragmentation."
+    ]
+  },
+  {
+    "id": "v06-006",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Memory Compaction",
+    "difficulty": "medium",
+    "type": "understanding",
+    "question": "What is memory compaction, and what problem does it solve?",
+    "options": [
+      "Compressing files to save disk space",
+      "Moving all allocated partitions together to create one large contiguous free block, solving external fragmentation",
+      "Merging duplicate page table entries",
+      "Flushing the CPU cache to main memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Memory compaction physically moves allocated processes in RAM to eliminate the gaps between them, consolidating all free space into one large contiguous block that can satisfy future large allocation requests.",
+    "optionExplanations": [
+      "File compression is a storage optimization, not memory management compaction.",
+      "Correct. Compaction moves live process data together to eliminate external fragmentation.",
+      "Page table merging is not memory compaction.",
+      "Cache flushing is a CPU cache operation unrelated to RAM compaction."
+    ]
+  },
+  {
+    "id": "v06-007",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Memory Compaction",
+    "difficulty": "hard",
+    "type": "understanding",
+    "question": "What is the major overhead of memory compaction that makes it undesirable as a frequent operation?",
+    "options": [
+      "It requires rebooting the operating system",
+      "It must copy all process data to new addresses, update all pointers, and pause process execution \u2014 very expensive for large RAM",
+      "It requires a 32-bit CPU and cannot run on 64-bit systems",
+      "It permanently deletes low-priority process data"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Compaction requires physically moving (copying) all allocated process data to new memory locations, updating every pointer and base address, and freezing process execution during the operation. On a system with gigabytes of used RAM, this is prohibitively expensive.",
+    "optionExplanations": [
+      "Compaction does not require a reboot; it reorganizes existing live memory.",
+      "Correct. Moving all live process data, updating pointers, and blocking execution makes compaction very expensive.",
+      "Compaction is architecture-independent; it works on all RAM-based systems.",
+      "Compaction moves data but does not delete process data."
+    ]
+  },
+  {
+    "id": "v06-008",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Virtual memory",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What fundamental problem does virtual memory solve that the partition model cannot?",
+    "options": [
+      "Virtual memory eliminates the need for a CPU scheduler",
+      "Virtual memory allows processes to have address spaces larger than physical RAM and provides isolation without contiguous physical allocation",
+      "Virtual memory increases the physical clock speed of RAM chips",
+      "Virtual memory removes the need for a file system"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Virtual memory decouples logical address space from physical RAM. Processes can use more memory than physically installed (via disk swapping), and non-contiguous physical allocation is hidden behind a contiguous virtual address space, solving both size limits and fragmentation.",
+    "optionExplanations": [
+      "Virtual memory and CPU scheduling are independent OS mechanisms.",
+      "Correct. Virtual memory allows address spaces to exceed physical RAM and eliminates the requirement for contiguous physical allocation.",
+      "Virtual memory is a software/hardware MMU concept; it does not affect DRAM clock speeds.",
+      "File systems manage storage; virtual memory manages process address spaces."
+    ]
+  },
+  {
+    "id": "v06-009",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Partition Model",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "In the Single Contiguous Memory Model (single-partition), what is the major limitation for multitasking?",
+    "options": [
+      "Only one process can exist in memory at a time, so true multiprogramming is impossible",
+      "RAM becomes permanently corrupted after each process exits",
+      "The CPU cannot execute instructions without at least 4 processes in memory",
+      "The model requires virtual memory support"
+    ],
+    "correctAnswer": 0,
+    "explanation": "In the single contiguous memory model, only one user process occupies RAM at a time. When it blocks on I/O, the CPU sits idle because no other process is in memory to run \u2014 prohibiting true multiprogramming.",
+    "optionExplanations": [
+      "Correct. Only one process in memory at a time prevents multiprogramming and causes CPU idle time during I/O waits.",
+      "RAM is not corrupted by process exit; the OS reclaims and reuses the memory.",
+      "The number of processes required is a scheduling concern; the limit of one is the constraint.",
+      "Single contiguous model predates virtual memory; virtual memory is the solution, not a requirement."
+    ]
+  },
+  {
+    "id": "v06-010",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "External fragmentation",
+    "difficulty": "hard",
+    "type": "scenario",
+    "question": "A memory system has free blocks of sizes: 10 KB, 4 KB, 20 KB, 18 KB. A process requests 15 KB. Using First-Fit, which block is allocated, and how much internal fragmentation results?",
+    "options": [
+      "10 KB block \u2014 0 KB waste (best fit chosen)",
+      "20 KB block \u2014 5 KB internal fragmentation",
+      "4 KB block \u2014 impossible, request rejected",
+      "18 KB block \u2014 3 KB internal fragmentation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "First-Fit scans from the beginning: 10 KB (too small), 4 KB (too small), 20 KB (fits!). Allocate the 20 KB block for the 15 KB request. The remaining 5 KB in the block is internal fragmentation.",
+    "optionExplanations": [
+      "First-Fit takes the first fitting block, not the smallest fitting block (that is Best-Fit).",
+      "Correct. First-Fit allocates the 20 KB block (first large enough), leaving 5 KB internal fragmentation.",
+      "4 KB is too small for a 15 KB request.",
+      "First-Fit stops at the FIRST fitting block (20 KB) before reaching the 18 KB block."
+    ]
+  },
+  {
+    "id": "v06-011",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Best-fit",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "Using the same free blocks (10 KB, 4 KB, 20 KB, 18 KB) and a 15 KB request, what does Best-Fit allocate?",
+    "options": [
+      "10 KB block \u2014 request fails",
+      "20 KB block \u2014 5 KB waste",
+      "18 KB block \u2014 3 KB internal fragmentation",
+      "4 KB block \u2014 request fails"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Best-Fit chooses the smallest block that is large enough. From (10KB-too small, 4KB-too small, 20KB-fits with 5KB waste, 18KB-fits with 3KB waste), Best-Fit selects the 18 KB block, leaving only 3 KB internal fragmentation.",
+    "optionExplanations": [
+      "10 KB is too small for a 15 KB request.",
+      "20 KB fits but leaves 5 KB waste; Best-Fit finds a better (smaller waste) option.",
+      "Correct. 18 KB is the smallest partition that satisfies the 15 KB request, leaving only 3 KB waste.",
+      "4 KB is too small for a 15 KB request."
+    ]
+  },
+  {
+    "id": "v06-012",
+    "video": 6,
+    "topic": "Memory Management",
+    "subtopic": "Internal fragmentation",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "Why does the Partition Model inherently lead to internal fragmentation?",
+    "options": [
+      "Because partitions are always allocated as multiples of 4 KB pages",
+      "Because a process is assigned a fixed-size partition which may be larger than its actual memory needs",
+      "Because the OS wastes memory for the partition table itself",
+      "Because adjacent partitions cannot be merged when both become free"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When a process needs, say, 13 KB but the smallest available partition is 20 KB, the 7 KB difference is wasted as internal fragmentation. The partition model cannot give a process exactly the memory it needs.",
+    "optionExplanations": [
+      "Page-granularity rounding is a different type of internal fragmentation specific to paging systems.",
+      "Correct. Fixed partition sizes don't match exact process requirements, causing internal fragmentation.",
+      "Partition table overhead is a real but minor fixed cost, not what causes internal fragmentation.",
+      "Adjacent free partition merging addresses external fragmentation, not internal."
+    ]
+  }
+]

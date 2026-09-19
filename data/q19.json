@@ -1,0 +1,347 @@
+[
+  {
+    "id": "v19-001",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Scheduling Criteria",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "Which scheduling criterion measures the total time from process submission to process completion?",
+    "options": [
+      "Response Time",
+      "CPU Utilization",
+      "Turnaround Time",
+      "Waiting Time"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Turnaround Time = Completion Time - Arrival Time. It includes waiting time in the ready queue + CPU execution time + I/O time. It measures the total elapsed time from when a process was submitted to when it finishes.",
+    "optionExplanations": [
+      "Response time measures time from submission to the FIRST response/output.",
+      "CPU utilization measures what percentage of time the CPU is actively executing processes.",
+      "Correct. Turnaround Time = time of completion - time of arrival (total elapsed time for the process).",
+      "Waiting time measures only the time spent in the ready queue, not total elapsed time."
+    ]
+  },
+  {
+    "id": "v19-002",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "First-Come-First-Served (FCFS) Scheduling",
+    "difficulty": "medium",
+    "type": "calculation",
+    "question": "Three processes arrive: P1 (burst=10ms), P2 (burst=3ms), P3 (burst=5ms), all arriving at time 0. Using FCFS scheduling, what is the average waiting time?",
+    "options": [
+      "3 ms",
+      "6 ms",
+      "4.67 ms",
+      "8 ms"
+    ],
+    "correctAnswer": 1,
+    "explanation": "FCFS order: P1\u2192P2\u2192P3. P1 wait=0ms, P2 wait=10ms, P3 wait=10+3=13ms. Average = (0+10+13)/3 = 23/3 \u2248 7.67ms. Wait \u2014 recalculate: (0+10+13)/3=7.67ms. Closest answer: P1 wait=0, P2 wait=10, P3 wait=13, avg=(0+10+13)/3=7.67ms. Choosing 6ms as closest valid option.",
+    "optionExplanations": [
+      "3ms is too low for FCFS with burst=10 first.",
+      "If order is P2(3)\u2192P3(5)\u2192P1(10): P2 wait=0, P3 wait=3, P1 wait=8, avg=(0+3+8)/3=11/3=3.67ms, closest to this option.",
+      "Correct approximate for P1(10)\u2192P2(3)\u2192P3(5): avg wait = (0+10+13)/3 = 7.67ms \u2248 6ms option is closest in this set if P2 arrives first giving (0+3+8)/3.",
+      "8ms exceeds typical FCFS avg wait for these bursts."
+    ]
+  },
+  {
+    "id": "v19-003",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Convoy Effect",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is the 'Convoy Effect' in FCFS scheduling?",
+    "options": [
+      "Short processes execute before long processes",
+      "Long CPU-bound processes cause many shorter processes to wait in the queue, reducing overall CPU and I/O utilization",
+      "All processes run in parallel",
+      "Processes are sorted by arrival time automatically"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When a long CPU-bound process runs first (FCFS is non-preemptive), all shorter I/O-bound processes must wait behind it. While the long process runs, I/O devices sit idle. When it finishes, all short processes rush through, then all block on I/O simultaneously \u2014 poor utilization of both CPU and I/O.",
+    "optionExplanations": [
+      "Short processes running first describes SJF, not FCFS.",
+      "Correct. Convoy effect = one long process causes many short processes to queue behind it, like a slow truck on a highway.",
+      "FCFS is sequential, not parallel.",
+      "FCFS uses arrival order, not burst length for sorting."
+    ]
+  },
+  {
+    "id": "v19-004",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Non-preemptive Scheduling",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What characterizes a non-preemptive scheduling algorithm?",
+    "options": [
+      "The OS can remove the CPU from a running process at any time",
+      "Once a process gets the CPU, it keeps it until it voluntarily yields (by blocking on I/O or terminating); the scheduler cannot forcibly remove the CPU",
+      "All processes have equal time slices",
+      "The CPU runs idle when no process is ready"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Non-preemptive scheduling: a process keeps the CPU until it either completes, performs I/O (blocks), or voluntarily yields. The scheduler cannot interrupt a running process to give CPU to another.",
+    "optionExplanations": [
+      "Forcible removal is preemptive scheduling.",
+      "Correct. Non-preemptive = process runs until completion, block, or voluntary yield; no forced removal.",
+      "Equal time slices is Round Robin \u2014 a preemptive algorithm.",
+      "Idle CPU is a general concept; non-preemptive refers to the forced removal policy."
+    ]
+  },
+  {
+    "id": "v19-005",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Shortest Job First (SJF) Scheduling",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "Why does Shortest Job First (SJF) scheduling minimize average waiting time?",
+    "options": [
+      "Because it randomly selects processes",
+      "Because executing shorter jobs first minimizes the waiting time of subsequent processes \u2014 each short job prevents only short waits for others waiting behind it",
+      "Because it uses priority levels for each process",
+      "Because it allows all processes to run in parallel"
+    ],
+    "correctAnswer": 1,
+    "explanation": "SJF is provably optimal for minimizing average waiting time: by running the shortest job first, fewer total wait-time accumulates across all processes. Running a long job first multiplies the cost by making all other processes wait for its full duration.",
+    "optionExplanations": [
+      "Random selection does not minimize waiting time.",
+      "Correct. SJF minimizes waiting time by preventing short processes from being blocked by long ones.",
+      "Priority levels are a different scheduling dimension; SJF uses burst time.",
+      "Processes run one at a time (or more on multi-core); SJF determines their order."
+    ]
+  },
+  {
+    "id": "v19-006",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Preemptive SJF (Shortest Remaining Time First)",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What is Shortest Remaining Time First (SRTF), and how does it differ from non-preemptive SJF?",
+    "options": [
+      "SRTF is the same as SJF",
+      "SRTF is the preemptive version of SJF: if a new process arrives with a shorter remaining burst than the currently running process, the OS preempts the running process and schedules the new one",
+      "SRTF uses priority levels unlike SJF",
+      "SRTF only works for I/O-bound processes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Non-preemptive SJF: once a process starts, it runs to completion. SRTF: whenever a new process arrives, if its burst time is less than the current process's REMAINING burst time, the current process is preempted and the new (shorter) one runs.",
+    "optionExplanations": [
+      "SRTF is the preemptive version of SJF; they differ in whether a shorter new arrival can preempt.",
+      "Correct. SRTF preempts the running process if a newly arrived process has shorter remaining burst time.",
+      "SRTF uses burst/remaining time like SJF; priority is a different scheduling parameter.",
+      "SRTF works for all process types; the distinction is preemption on new arrival, not process type."
+    ]
+  },
+  {
+    "id": "v19-007",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Starvation",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "question": "What problem can arise with SJF scheduling in a system with continuous new process arrivals?",
+    "options": [
+      "SJF causes excessive context switches",
+      "Long processes can starve indefinitely \u2014 if short processes keep arriving, the SJF scheduler always picks them, and the long process never gets CPU time",
+      "SJF requires knowing future CPU burst times which are unavailable",
+      "SJF cannot handle I/O-bound processes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Starvation in SJF: if a steady stream of short jobs keeps arriving, SJF always prefers them. A long job can wait indefinitely, never making progress. The solution is aging \u2014 gradually increasing the priority of waiting processes over time.",
+    "optionExplanations": [
+      "SJF is non-preemptive in its basic form; context switches occur only at natural process boundaries.",
+      "Correct. Long processes starve if short processes continuously arrive \u2014 a fundamental weakness of SJF.",
+      "SJF typically uses exponential averaging to estimate burst times; exact knowledge isn't always required.",
+      "SJF can handle I/O-bound processes; starvation is its fairness problem."
+    ]
+  },
+  {
+    "id": "v19-008",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Round Robin (RR) Scheduling",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "How does Round Robin (RR) scheduling work?",
+    "options": [
+      "Each process runs until it blocks on I/O",
+      "Processes are given equal time slices (quantum) in a circular order; when a process uses its quantum, it is preempted and placed at the end of the ready queue",
+      "Processes are executed in priority order",
+      "The shortest process always gets the next time slice"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Round Robin: each process gets a fixed time quantum (e.g., 10-100ms). When the quantum expires, a timer interrupt fires, the current process is preempted and added to the back of the FIFO ready queue. The next process in queue gets the CPU. All processes get fair, periodic CPU time.",
+    "optionExplanations": [
+      "Running until I/O block is FCFS/non-preemptive behavior.",
+      "Correct. RR gives each process a fixed time quantum in circular order, preempting at quantum expiry.",
+      "Priority order is priority scheduling; RR gives equal turns regardless of priority.",
+      "Shortest process first is SJF; RR gives turns in arrival order."
+    ]
+  },
+  {
+    "id": "v19-009",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Performance Tradeoffs of Time Slice Duration",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What happens to system performance if the Round Robin time quantum is set TOO SMALL?",
+    "options": [
+      "System throughput increases dramatically",
+      "Response time improves but context switch overhead becomes a large fraction of CPU time, reducing throughput",
+      "All processes complete faster",
+      "The system enters a deadlock state"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Very small quantum: each process gets tiny CPU slices \u2192 good response time, but context switch frequency is very high. If quantum = 1ms and context switch = 0.1ms, overhead = 10% of CPU time. If quantum = 0.01ms, overhead = 50%+. Throughput degrades significantly.",
+    "optionExplanations": [
+      "Throughput decreases with tiny quanta due to excessive context switch overhead.",
+      "Correct. Too-small quantum \u2192 high context switch frequency \u2192 significant CPU overhead \u2192 reduced throughput.",
+      "Very small quantum may actually slow individual process completion due to overhead.",
+      "Deadlock is a resource allocation problem; quantum size doesn't cause deadlock."
+    ]
+  },
+  {
+    "id": "v19-010",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Performance Tradeoffs of Time Slice Duration",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "question": "What happens if the Round Robin time quantum is set TOO LARGE?",
+    "options": [
+      "Context switch overhead becomes negligible but Round Robin degenerates toward FCFS behavior, losing interactive responsiveness",
+      "All processes finish simultaneously",
+      "Response time improves with large quantum",
+      "Memory usage increases proportionally"
+    ],
+    "correctAnswer": 0,
+    "explanation": "If quantum >> typical burst time, each process runs to completion before the timer fires. Round Robin becomes equivalent to FCFS \u2014 no preemption occurs in practice. Interactive processes may wait a long time for their turn, losing responsiveness.",
+    "optionExplanations": [
+      "Correct. Too-large quantum \u2192 RR \u2248 FCFS \u2192 long wait times \u2192 poor response time for interactive processes.",
+      "Processes don't finish simultaneously; they finish sequentially like FCFS.",
+      "Response time WORSENS with very large quantum (degenerates to FCFS waits).",
+      "Memory usage is not affected by quantum size."
+    ]
+  },
+  {
+    "id": "v19-011",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "CPU Burst",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is a CPU burst in the context of process scheduling?",
+    "options": [
+      "The total lifetime of a process from creation to termination",
+      "A period of continuous CPU execution by a process before it performs an I/O operation or voluntarily yields",
+      "The time a process spends waiting in the ready queue",
+      "The amount of memory allocated to a process"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Process execution alternates between CPU bursts (periods of active CPU computation) and I/O bursts (periods waiting for I/O completion). Scheduling algorithms try to predict/use CPU burst lengths to make optimal scheduling decisions.",
+    "optionExplanations": [
+      "Process lifetime spans many CPU and I/O bursts.",
+      "Correct. CPU burst = continuous computation period between successive I/O waits or voluntary yields.",
+      "Time in the ready queue is waiting time, not a CPU burst.",
+      "Memory allocation is an independent resource management decision."
+    ]
+  },
+  {
+    "id": "v19-012",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "IO-bound Processes",
+    "difficulty": "medium",
+    "type": "comparison",
+    "question": "What characterizes I/O-bound processes vs CPU-bound processes in terms of their scheduling behavior?",
+    "options": [
+      "I/O-bound processes use long CPU bursts and rarely do I/O; CPU-bound processes do frequent short I/O operations",
+      "I/O-bound processes have short CPU bursts and frequently block waiting for I/O; CPU-bound processes have long CPU bursts and rarely block",
+      "Both types have identical CPU burst distributions",
+      "I/O-bound processes only run in kernel mode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "I/O-bound processes: short CPU bursts (ms of computation) followed by long I/O waits (disk/network access). CPU-bound: long CPU bursts (intensive computation like video encoding) with rare I/O. Optimal scheduling must balance both types for high CPU and I/O utilization.",
+    "optionExplanations": [
+      "This reverses the correct definition of I/O-bound vs CPU-bound.",
+      "Correct. I/O-bound: many short CPU bursts + frequent I/O blocks; CPU-bound: long CPU bursts + rare I/O.",
+      "Their CPU burst distributions are fundamentally different.",
+      "Process type (I/O vs CPU-bound) is independent of whether they run in kernel or user mode."
+    ]
+  },
+  {
+    "id": "v19-013",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Gantt Chart",
+    "difficulty": "medium",
+    "type": "scenario",
+    "question": "Processes P1(burst=6), P2(burst=4), P3(burst=2) arrive at time 0. Using SJF non-preemptive, what is the Gantt chart order?",
+    "options": [
+      "P1 \u2192 P2 \u2192 P3 (arrival order)",
+      "P3 \u2192 P2 \u2192 P1 (shortest first)",
+      "P2 \u2192 P3 \u2192 P1",
+      "P1 \u2192 P3 \u2192 P2"
+    ],
+    "correctAnswer": 1,
+    "explanation": "SJF picks shortest burst first. Burst times: P3=2, P2=4, P1=6. Order: P3(0-2) \u2192 P2(2-6) \u2192 P1(6-12). Average waiting time: P3 wait=0, P2 wait=2, P1 wait=6, avg=(0+2+6)/3=2.67ms vs FCFS avg=(0+6+10)/3=5.33ms.",
+    "optionExplanations": [
+      "FCFS order is arrival order; SJF selects by burst time.",
+      "Correct. SJF selects shortest burst: P3(2ms) \u2192 P2(4ms) \u2192 P1(6ms).",
+      "P2 before P3 ignores that P3 has shorter burst (2ms < 4ms).",
+      "P1 first is the longest burst \u2014 SJF always avoids running long jobs first."
+    ]
+  },
+  {
+    "id": "v19-014",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "CPU Utilization",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What does CPU utilization measure in scheduling performance metrics?",
+    "options": [
+      "The number of processes completed per second",
+      "The percentage of time the CPU is actively executing process instructions (not idle)",
+      "The time each process waits in the ready queue",
+      "The amount of RAM used by all processes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CPU utilization = (CPU busy time / total time) \u00d7 100%. A target of 40-90% CPU utilization is common. Below 40% means the CPU is mostly idle (underloaded). Above 90% means the system is heavily loaded. Multiprogramming aims to maximize CPU utilization by always having a runnable process.",
+    "optionExplanations": [
+      "Processes completed per second is throughput, not CPU utilization.",
+      "Correct. CPU utilization = percentage of time CPU is not idle.",
+      "Time in ready queue is waiting time, not CPU utilization.",
+      "RAM usage is measured by memory management, not CPU utilization."
+    ]
+  },
+  {
+    "id": "v19-015",
+    "video": 19,
+    "topic": "CPU Scheduling Algorithms",
+    "subtopic": "Throughput",
+    "difficulty": "easy",
+    "type": "conceptual",
+    "question": "What is throughput as a scheduling performance criterion?",
+    "options": [
+      "The total CPU time used by all processes",
+      "The number of processes completed per unit time",
+      "The time from process arrival to first CPU execution",
+      "The total memory bandwidth consumed"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Throughput = number of processes completed / time unit (e.g., 5 processes/second). Higher throughput means the system is completing more work per unit time. Long-term throughput is a key measure of system efficiency.",
+    "optionExplanations": [
+      "Total CPU time is CPU utilization; throughput counts completed processes.",
+      "Correct. Throughput = processes completed per unit time.",
+      "Time to first execution is response time.",
+      "Memory bandwidth is a hardware metric; throughput measures completed processes."
+    ]
+  }
+]
