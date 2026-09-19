@@ -95,6 +95,7 @@ App.showPanel = function(name) {
   const el = document.getElementById('panel-'+name);
   if (el) { el.classList.add('active'); }
   document.getElementById('app-main').scrollTop = 0;
+  if (window.innerWidth <= 640) { document.getElementById('app-sidebar').classList.remove('mobile-open'); const ov = document.getElementById('sidebar-overlay'); if(ov) ov.classList.remove('active'); }
 
   // Sidebar active state
   document.querySelectorAll('.sb-main-item').forEach(b => b.classList.remove('active'));
@@ -142,7 +143,7 @@ function buildSidebarNav() {
     btn.dataset.v = v;
     btn.innerHTML = `
       <span class="sb-dot"></span>
-      <span class="sb-item-label">Video ${String(v).padStart(2,'0')}</span>
+      <span class="sb-item-label" title="Video ${v}: ${VIDEO_TOPICS[v]||''}">Video ${String(v).padStart(2,'0')}: ${VIDEO_TOPICS[v]||''}</span>
       <span class="sb-item-count">${pct !== null ? pct+'%' : count}</span>
     `;
     btn.onclick = () => startVideoSession(v);
@@ -180,6 +181,7 @@ function buildVideoGrid() {
 
 function startVideoSession(v) {
   setActiveSidebarVideo(v);
+  if (window.innerWidth <= 640) { document.getElementById('app-sidebar').classList.remove('mobile-open'); const ov = document.getElementById('sidebar-overlay'); if(ov) ov.classList.remove('active'); }
   const pool = shuffle(allQuestions.filter(q => q.video === v));
   startSession(pool, 'practice', 0);
 }
@@ -488,3 +490,15 @@ document.querySelectorAll('.chip-group').forEach(group => {
 // ─── Boot ──────────────────────────────────────────────────
 window.App = App;
 loadAllQuestions();
+
+App.toggleSidebar = function() {
+  const sb = document.getElementById('app-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (!sb) return;
+  if (window.innerWidth <= 640) {
+    sb.classList.toggle('mobile-open');
+    if (overlay) overlay.classList.toggle('active');
+  } else {
+    sb.classList.toggle('collapsed');
+  }
+};

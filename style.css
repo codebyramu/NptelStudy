@@ -1011,9 +1011,75 @@ body.light-mode { --main-bg: #f7f4ec; --cream: #faf8f2; }
 /* ═══════════════════════════════════ RESPONSIVE ══ */
 @media (max-width: 640px) {
   :root { --sidebar-w: 0px; }
-  #app-sidebar { display: none; }
+  /* #app-sidebar { display: none; } removed for new toggle */
   .home-stats-row { grid-template-columns: repeat(2, 1fr); }
   .result-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .mode-grid { grid-template-columns: 1fr; }
   .main-content, .quiz-container, .setup-container, .results-container, .stats-container { padding-left: 20px; padding-right: 20px; }
+}
+
+
+/* ═══════════════════════════════════ TOP BAR & SIDEBAR TOGGLE ══ */
+#app-sidebar {
+  transition: transform 0.3s ease, margin-left 0.3s ease;
+}
+#app-sidebar.collapsed {
+  margin-left: calc(-1 * var(--sidebar-w));
+}
+
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9;
+}
+#sidebar-overlay.active {
+  display: block;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--main-bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.menu-toggle {
+  background: none;
+  border: none;
+  color: var(--text-dark);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+.menu-toggle:hover {
+  background: rgba(0,0,0,0.05);
+}
+.top-brand {
+  margin-left: 10px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+@media (max-width: 640px) {
+  :root { --sidebar-w: 250px; }
+  #app-sidebar {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    margin-left: calc(-1 * var(--sidebar-w));
+    z-index: 10;
+  }
+  #app-sidebar.mobile-open {
+    margin-left: 0;
+  }
+  
+  /* The existing rule */
+  /* Remove display: none */
 }
