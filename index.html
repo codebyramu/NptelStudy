@@ -270,6 +270,8 @@
       <div class="weak-list" id="weak-topics-list"></div>
       <div class="result-actions">
         <button class="btn-primary" onclick="App.toggleReview()">Review Answers</button>
+        <button class="btn-secondary" id="btn-retake" onclick="App.retakeTest()">Retake Test</button>
+        <button class="btn-secondary" id="btn-next-video" style="display:none" onclick="App.nextVideoTest()">Next Video</button>
         <button class="btn-secondary" onclick="App.showPanel('mode')">New Session</button>
         <button class="btn-ghost" onclick="App.showPanel('home')">Home</button>
       </div>
@@ -307,5 +309,17 @@
 </div>
 
 <script src="app.js?v=999"></script>
+
+<div id="modal-reset" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <p class="modal-title" style="color:var(--red)">Delete all data?</p>
+    <p class="modal-sub">Are you completely sure you want to delete all your progress? This action is permanent and cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="App.closeModal()">Cancel</button>
+      <button class="btn-danger" onclick="App.confirmResetData()">Yes, Delete All</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

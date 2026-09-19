@@ -183,7 +183,7 @@ function startVideoSession(v) {
   setActiveSidebarVideo(v);
   if (window.innerWidth <= 640) { document.getElementById('app-sidebar').classList.remove('mobile-open'); const ov = document.getElementById('sidebar-overlay'); if(ov) ov.classList.remove('active'); }
   const pool = shuffle(allQuestions.filter(q => q.video === v));
-  startSession(pool, 'practice', 0);
+  startSession(pool, 'practice', 0); session.video = v;
 }
 
 // ─── Start Sessions ────────────────────────────────────────
@@ -194,7 +194,7 @@ App.startPractice = function() {
   let pool = allQuestions.filter(q => diff==='all' || q.difficulty===diff);
   pool = doShuffle ? shuffle(pool) : pool;
   if (count !== 'all') pool = pool.slice(0, parseInt(count));
-  startSession(pool, 'practice', 0);
+  startSession(pool, 'practice', 0); session.video = v;
 };
 
 App.startExam = function() {
@@ -217,7 +217,7 @@ App.startWeakTopics = function() {
     pool = allQuestions.filter(q => sorted.includes(q.subtopic||q.topic));
     pool = pool.length < 5 ? shuffle(allQuestions).slice(0,15) : shuffle(pool).slice(0,15);
   }
-  startSession(pool, 'practice', 0);
+  startSession(pool, 'practice', 0); session.video = v;
 };
 
 // ─── Session Core ──────────────────────────────────────────
@@ -385,6 +385,17 @@ function finishSession() {
   updateHomeStats();
   buildSidebarNav();
   buildVideoGrid();
+
+  // Setup buttons
+  const btnNextVideo = document.getElementById('btn-next-video');
+  if (btnNextVideo) {
+    if (session.video && session.video < 20) {
+      btnNextVideo.style.display = 'inline-block';
+    } else {
+      btnNextVideo.style.display = 'none';
+    }
+  }
+
   App.showPanel('results');
 }
 
@@ -458,17 +469,19 @@ App.showStats = function() {
 };
 
 App.resetStats = function() {
-  if (confirm('Reset all progress? This cannot be undone.')) {
-    localStorage.removeItem(SS_KEY);
-    updateHomeStats();
-    buildSidebarNav();
-    App.showStats();
-  }
+  document.getElementById('modal-reset').style.display = 'flex';
+};
+App.confirmResetData = function() {
+  localStorage.removeItem(SS_KEY);
+  updateHomeStats();
+  buildSidebarNav();
+  App.showStats();
+  App.closeModal();
 };
 
 // ─── Exit ──────────────────────────────────────────────────
 App.confirmExit  = () => { document.getElementById('modal-exit').style.display='flex'; };
-App.closeModal   = () => { document.getElementById('modal-exit').style.display='none'; };
+App.closeModal = () => { document.getElementById('modal-exit').style.display='none'; const mr = document.getElementById('modal-reset'); if (mr) mr.style.display='none'; };
 App.forceExit    = () => {
   App.closeModal();
   clearInterval(session.timerInterval);
@@ -500,5 +513,21 @@ App.toggleSidebar = function() {
     if (overlay) overlay.classList.toggle('active');
   } else {
     sb.classList.toggle('collapsed');
+  }
+};
+
+App.retakeTest = function() {
+  const prevQs = [...session.questions];
+  const prevMode = session.mode;
+  const prevTime = session.timePerQ;
+  const prevVideo = session.video;
+  
+  startSession(prevQs, prevMode, prevTime);
+  if (prevVideo) session.video = prevVideo;
+};
+
+App.nextVideoTest = function() {
+  if (session.video && session.video < 20) {
+    startVideoSession(session.video + 1);
   }
 };
